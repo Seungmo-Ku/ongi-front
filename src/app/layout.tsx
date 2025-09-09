@@ -26,14 +26,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased max-w-screen-sm flex justify-center`}
-      >
-      <DirectionProvider>
-          <ClientSideWrapper>
-              {children}
-          </ClientSideWrapper>
-      </DirectionProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <div className='max-w-screen-sm flex justify-center'>
+          <DirectionProvider>
+              <ClientSideWrapper>
+                  {children}
+              </ClientSideWrapper>
+          </DirectionProvider>
+      </div>
       </body>
     </html>
   );
