@@ -18,9 +18,7 @@ const DirectionContext = createContext<DirectionContextType>({
 
 const DirectionProvider = ({ children }: { children: ReactNode }) => {
     const [direction, setDirection] = useState<Direction>('forward')
-    useEffect(() => {
-        console.log('direction changed:', direction)
-    }, [direction])
+    
     return (
         <DirectionContext.Provider value={{ direction, setDirection }}>
             {children}
