@@ -31,7 +31,7 @@ export const FooterInputSend = () => {
                 ref={textareaRef}
                 value={text}
                 onChange={handleChange}
-                className='grow bg-white rounded-[20px] text-14-regular px-5 py-2 text-black resize-none outline-none focus:outline-none transition duration-300 active:scale-95'
+                className='grow bg-white rounded-[20px] text-16-regular px-5 py-2 text-black resize-none outline-none focus:outline-none transition duration-300 active:scale-95'
                 rows={1}
                 style={{ minHeight: '2.5rem' }}
                 placeholder='디디에게 대답하기'
