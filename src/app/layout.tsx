@@ -25,14 +25,19 @@ export default function RootLayout({
 }>) {
     
     useEffect(() => {
-        function setViewportHeight() {
-            const vh = window.innerHeight * 0.01
-            document.documentElement.style.setProperty('--vh', `${vh}px`)
+        const isInWebView =
+            navigator.userAgent.includes('wv') || // 안드로이드 WebView
+            window.navigator.userAgent.includes('WebView') // iOS WebView
+        if (!isInWebView) {
+            function setViewportHeight() {
+                const vh = window.innerHeight * 0.01
+                document.documentElement.style.setProperty('--vh', `${vh}px`)
+            }
+            
+            window.addEventListener('resize', setViewportHeight)
+            setViewportHeight()
+            return () => window.removeEventListener('resize', setViewportHeight)
         }
-        
-        window.addEventListener('resize', setViewportHeight)
-        setViewportHeight()
-        return () => window.removeEventListener('resize', setViewportHeight)
     }, [])
     
     return (
