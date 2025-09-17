@@ -288,6 +288,13 @@
     --text-64-bold--font-weight: 700;
 }
 
+.no-select {
+    -webkit-user-select: none; /* Safari/Chromium */
+    -webkit-touch-callout: none; /* 모바일 사파리 컨텍스트 메뉴 방지 */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    user-select: none;
+}
 
 @media (prefers-color-scheme: dark) {
     :root {

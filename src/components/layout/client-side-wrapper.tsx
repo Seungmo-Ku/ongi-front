@@ -23,7 +23,7 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
                 initial='initial'
                 animate='animate'
                 transition={{ duration: 0.3 }}
-                className='w-full h-full flex flex-col items-center justify-center'
+                className='w-full h-full flex flex-col items-center overflow-hidden'
             >
                 {children}
             </motion.div>

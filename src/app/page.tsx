@@ -22,14 +22,11 @@ export default function Home() {
             </div>
             <div
                 onClick={() => {
-                    push('/communication/diditalk')
-                    setTotalSteps(3)
-                    setCurrentStep(1)
-                    setCurrentGoal('오늘의 순간 하나를 자세히 털어놓기')
+                    push('/login')
                 }}
                 className='h-full flex items-center justify-center'
             >
-                /communication/talk
+                /login
             </div>
         </div>
     )
