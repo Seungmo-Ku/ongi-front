@@ -15,7 +15,7 @@ export const ChatLog = ({
 }: ChatLogProps) => {
     // 다음 chat 이 user 인지 아닌 지 모르니까 다음 chat 에서 marginTop 을 줘서 간격
     return (
-        <div className='flex flex-col w-full px-[25px] mb-[100px]'>
+        <div className='flex flex-col w-full px-[25px]'>
             {
                 chats.map((chat: Chat, index) => {
                     

@@ -26,6 +26,7 @@ const CommunicationPage = () => {
     const [emotionList, setEmotionList] = useState<string[]>([])
     const sendButtonRef = useRef<HTMLButtonElement>(null)
     const [showSendButton, setShowSendButton] = useState(false)
+    const chatBottomRef = useRef<HTMLDivElement>(null)
     
     useEffect(() => {
         setTotalSteps(3)
@@ -33,11 +34,19 @@ const CommunicationPage = () => {
         setCurrentGoal(CommunicationStep[0])
     }, [setCurrentGoal, setCurrentStep, setTotalSteps])
     
+    useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [chat])
+    
     const goToNextStep = useCallback(() => {
         switch (currentStep) {
             case 1:
                 setCurrentStep(2)
                 setCurrentGoal(CommunicationStep[1])
+                setChat((prev) => ([
+                    ...prev,
+                    { text: '그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네', isUser: false }
+                ]))
                 break
             case 2:
                 setCurrentStep(3)
@@ -196,10 +205,11 @@ const CommunicationPage = () => {
                             <Box.EmotionsList emotionList={emotionList} setEmotionList={setEmotionList}/>
                         </div>
                     ) : (
-                        <div className='w-full h-full flex flex-col overflow-hidden'>
+                        <div className='w-full h-full flex flex-col overflow-hidden mb-[100px]'>
                             <div className='h-10'/>
                             <div className='w-full overflow-y-scroll'>
                                 <CommunicationView.ChatLog chats={chat}/>
+                                <div ref={chatBottomRef}/>
                             </div>
                         </div>
                     )
