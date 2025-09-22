@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { StepProvider } from '@/components/layout/communication-step-provider'
+import { RewindStepProvider } from '@/components/layout/rewind-step-provider'
 
 
 type Direction = 'forward' | 'backward'
@@ -23,7 +24,9 @@ const DirectionProvider = ({ children }: { children: ReactNode }) => {
     return (
         <DirectionContext.Provider value={{ direction, setDirection }}>
             <StepProvider>
-                {children}
+                <RewindStepProvider>
+                    {children}
+                </RewindStepProvider>
             </StepProvider>
         </DirectionContext.Provider>
     )

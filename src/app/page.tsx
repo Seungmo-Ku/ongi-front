@@ -1,17 +1,21 @@
 'use client'
 
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import { useCommunicationStep } from '@/components/layout/communication-step-provider'
 import useAccount from '@/hooks/use-account'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
+import Character from '@/components/character'
+import clsx from 'clsx'
+import { useRewindStep } from '@/components/layout/rewind-step-provider'
+import { useCommunicationStep } from '@/components/layout/communication-step-provider'
 
 
 export default function Home() {
     const { push } = useDirectionalRouter()
-    const { setTotalSteps, setCurrentStep, setCurrentGoal } = useCommunicationStep()
+    const { setStep, setWeek } = useRewindStep()
+    const { setChat, setEmotionList } = useCommunicationStep()
     
-    const { isLoggedIn, account } = useAccount()
-
+    const { isLoggedIn } = useAccount()
+    
     useEffect(() => {
         const timer = setTimeout(() => {
             if (!isLoggedIn) {
@@ -21,25 +25,45 @@ export default function Home() {
         return () => clearTimeout(timer)
     }, [isLoggedIn, push])
     
-    return (
-        <div className='w-full h-full flex flex-col items-center justify-center bg-black text-white'>
-            {
-                isLoggedIn && (
-                    <div>
-                        {account?.displayName}
-                    </div>
-                )
-            }
+    const recordingButton = useCallback((text: string, disabled: boolean, onClick: () => void) => {
+        return (
             <div
-                onClick={() => {
-                    push('/communication')
-                    setTotalSteps(4)
-                    setCurrentStep(3)
-                    setCurrentGoal('내가 원하는 대로 대화 이끌기')
-                }}
-                className='h-full flex items-center justify-center'
+                className={clsx('h-[100px] rounded-4xl flex items-center justify-center p-4 break-keep', disabled ? 'text-[#838383] bg-[#ECECEC]' : 'transition duration-300 active:scale-105 bg-white text-black cursor-pointer')}
+                onClick={disabled ? undefined : onClick}
             >
-                /communication
+                {text}
+            </div>
+        )
+    }, [])
+    
+    return (
+        <div
+            className='w-full h-full flex flex-col items-center justify-start text-white pt-20 px-6 gap-y-8'
+            style={{
+                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
+            }}
+        >
+            <Character.Image mode='welcome' width={100} height={130}/>
+            <div className='flex flex-col gap-y-4 w-full'>
+                <span className='text-[#3674B5] text-20-bold text-start'>
+                    오늘 어떤 기록을 하고 싶어?
+                </span>
+                <div className='w-full grid-cols-2 grid gap-x-4 text-black'>
+                    {recordingButton('오늘을 기록하기', false,
+                        () => {
+                            setChat([])
+                            setEmotionList([])
+                            push('/communication')
+                        }
+                    )}
+                    {recordingButton('지난 일주일 회고하기', false,
+                        () => {
+                            setStep(0)
+                            setWeek(new Date())
+                            push('/rewind')
+                        }
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -8,6 +8,10 @@ import Communication from '@/components/view/communication'
 import { isEmpty } from 'lodash'
 import Box from '@/components/box'
 import { Button } from '@headlessui/react'
+import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
+import useAccount from '@/hooks/use-account'
+import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useGetEmpathy } from '@/hooks/use-get-empathy'
 
 
 const CommunicationStep = [
@@ -17,16 +21,23 @@ const CommunicationStep = [
 ]
 
 const CommunicationPage = () => {
-    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep } = useCommunicationStep()
+    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep, chat, setChat, sid, setSid, emotionList, setEmotionList } = useCommunicationStep()
     
-    const [chat, setChat] = useState<Chat[]>([])
     const [showChat, setShowChat] = useState(false)
     const [userChatCount, setUserChatCount] = useState(0)
     const [text, setText] = useState('')
-    const [emotionList, setEmotionList] = useState<string[]>([])
     const sendButtonRef = useRef<HTMLButtonElement>(null)
     const [showSendButton, setShowSendButton] = useState(false)
     const chatBottomRef = useRef<HTMLDivElement>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [step2StartText, setStep2StartText] = useState('그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네')
+    const [step3StartText, setStep3StartText] = useState('그랬구나. 그런 감정이 들었구나')
+    
+    const { account, user } = useAccount()
+    
+    const { getCommunicationStep1, getCommunicationStep2, getCommunicationStep3 } = useGetCommunicationResponse()
+    const { createEmpathy } = useGetEmpathy()
+    const { push } = useDirectionalRouter()
     
     useEffect(() => {
         setTotalSteps(3)
@@ -38,15 +49,17 @@ const CommunicationPage = () => {
         chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [chat])
     
+    useEffect(() => {
+        if (!sid && account?.uid && user) {
+            setSid(`${new Date().toLocaleDateString()}_${user.displayName ?? 'unknown'}`)
+        }
+    }, [account?.uid, setSid, sid, user])
+    
     const goToNextStep = useCallback(() => {
         switch (currentStep) {
             case 1:
                 setCurrentStep(2)
                 setCurrentGoal(CommunicationStep[1])
-                setChat((prev) => ([
-                    ...prev,
-                    { text: '그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네', isUser: false }
-                ]))
                 break
             case 2:
                 setCurrentStep(3)
@@ -61,70 +74,124 @@ const CommunicationPage = () => {
     const goToCurrentStep = useCallback(() => {
         switch (currentStep) {
             case 1:
-                setChat((prev) => ([
-                    ...prev,
-                    { text: '지빈아, 오늘 하루 중에서 가장 기억에 남는 순간은 뭐였어?', isUser: false }
-                ]))
+                setChat([
+                    ...chat,
+                    { chat: '오늘 하루 중에서 가장 기억에 남는 순간은 뭐였어?', isUser: false }
+                ])
                 break
             case 3:
-                setChat((prev) => ([
-                    ...prev,
-                    { text: emotionList.join(', '), isUser: true },
-                    { text: '~~~~~~ 감정이 들었구나.', isUser: false }
-                ]))
+                setChat([
+                    ...chat,
+                    { chat: emotionList.join(', '), isUser: true },
+                    { chat: step3StartText, isUser: false }
+                ])
                 break
         }
         setShowChat(true)
-    }, [currentStep, emotionList])
+    }, [chat, currentStep, emotionList, setChat, step3StartText])
     
     const showStepStart = useMemo(() => {
         switch (currentStep) {
             case 1:
                 return <Communication.StepStart.Step1/>
             case 2:
-                return <Communication.StepStart.Step2/>
+                return <Communication.StepStart.Step2 text={step2StartText}/>
             case 3:
-                return <Communication.StepStart.Step3/>
+                return <Communication.StepStart.Step3 text={step3StartText}/>
             default:
                 return <div></div>
         }
-    }, [currentStep])
+    }, [currentStep, step2StartText, step3StartText])
     
-    const onArrowClick = useCallback(() => {
+    const onArrowClick = useCallback(async () => {
+        if (isLoading) return
         if (showChat) {
             if (currentStep === 1 || currentStep === 3) {
                 if (isEmpty(text)) return
-                setChat((prev) => ([
-                    ...prev,
-                    { text, isUser: true }
-                ]))
+                setChat([
+                    ...chat,
+                    { chat: text, isUser: true }
+                ])
                 setText('')
                 setUserChatCount((prev) => prev + 1)
             } else if (currentStep === 2) {
                 if (isEmpty(emotionList)) return
-                goToNextStep()
-                setText('')
-                setUserChatCount(0)
+                setIsLoading(true)
+                const response = await getCommunicationStep2({
+                    uid: account?.uid ?? '',
+                    sid,
+                    emotion: emotionList
+                })
+                if (response) {
+                    setStep3StartText(response.chats.join('\n'))
+                    goToNextStep()
+                    setText('')
+                    setUserChatCount(0)
+                }
+                setIsLoading(false)
             }
         }
-    }, [currentStep, emotionList, goToNextStep, showChat, text])
+    }, [account?.uid, chat, currentStep, emotionList, getCommunicationStep2, goToNextStep, isLoading, setChat, showChat, sid, text])
     
-    const doReply = useCallback(() => {
+    const doReply = useCallback(async () => {
+        if (isLoading) return
         setShowSendButton(false)
+        
         if (userChatCount === 0) return
         switch (currentStep) {
             case 1:
             case 3:
-                const lastUserChats = chat.filter(c => c.isUser).slice(-userChatCount).map(c => c.text)
-                console.log('lastUserChats', lastUserChats)
-                setChat((prev) => ([
-                    ...prev,
-                    { text: '와, 정말 자세하게 말해줘서 고마워! 그럼 이번 친구들과의 모임으로 느낀 감정을 모두 골라볼래?', isUser: false }
-                ]))
+                const lastUserChats = chat.filter(c => c.isUser).slice(-userChatCount).map(c => c.chat)
+                setIsLoading(true)
+                const response = currentStep === 1 ?
+                                 await getCommunicationStep1({
+                                     uid: account?.uid ?? '',
+                                     sid,
+                                     message: lastUserChats.join('\n')
+                                 }) :
+                                 await getCommunicationStep3({
+                                     uid: account?.uid ?? '',
+                                     sid,
+                                     message: lastUserChats.join('\n')
+                                 })
+                if (response) {
+                    const newChats: Chat[] = response.chats.map(chat => ({
+                        chat,
+                        isUser: false
+                    }))
+                    setChat([
+                        ...chat,
+                        ...newChats
+                    ])
+                    if (response.done) {
+                        if (currentStep === 1) {
+                            setStep2StartText(newChats.map(chat => chat.chat).join('\n'))
+                            goToNextStep()
+                            setText('')
+                            setUserChatCount(0)
+                        }else {
+                            const response = await createEmpathy({
+                                uid: account?.uid ?? '',
+                                sid,
+                                chats: [
+                                    ...chat,
+                                    ...newChats
+                                ],
+                                emotion: emotionList.join(', '),
+                                finished: true,
+                                isRemind: false
+                            })
+                            if (response) {
+                                push('/')
+                            }
+                        }
+                    }
+                }
+                setIsLoading(false)
                 setUserChatCount(0)
                 break
         }
-    }, [chat, currentStep, userChatCount])
+    }, [account?.uid, chat, createEmpathy, currentStep, emotionList, getCommunicationStep1, getCommunicationStep3, goToNextStep, isLoading, push, setChat, sid, userChatCount])
     
     const sendButton = useMemo(() => {
         return (
@@ -166,14 +233,6 @@ const CommunicationPage = () => {
                 return '다 했어'
         }
     }, [currentStep])
-    
-    useEffect(() => {
-        if (currentStep === 1 && chat.length >= 10) { // 임시로 step1 20번 넘기면 다음 스텝
-            goToNextStep()
-            setText('')
-            setUserChatCount(0)
-        }
-    }, [chat.length, currentStep, goToNextStep, userChatCount])
     
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {

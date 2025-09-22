@@ -10,6 +10,9 @@ export const HeaderMain = () => {
     if (pathname.startsWith('/communication')) {
         return <Header.Communication/>
     }
+    if (pathname.startsWith('/rewind')) {
+        return <Header.Rewind/>
+    }
     return null
     
 }

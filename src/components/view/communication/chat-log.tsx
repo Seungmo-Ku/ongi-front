@@ -2,7 +2,7 @@ import Box from '@/components/box'
 
 
 export interface Chat {
-    text: string
+    chat: string
     isUser: boolean
 }
 
@@ -26,7 +26,7 @@ export const ChatLog = ({
                     return (
                         <Box.CommunicationText
                             key={`chat-${index}`}
-                            text={chat.text}
+                            text={chat.chat}
                             isUser={chat.isUser}
                             className={className}
                         />

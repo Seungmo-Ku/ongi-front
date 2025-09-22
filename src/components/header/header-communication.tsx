@@ -1,12 +1,20 @@
+'use client'
+
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 import { HeaderCommunicationProgressbar } from '@/components/header/communucation/header-communication-progressbar'
 import { useCommunicationStep } from '@/components/layout/communication-step-provider'
 import Button from '@/components/button'
+import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useGetEmpathy } from '@/hooks/use-get-empathy'
+import useAccount from '@/hooks/use-account'
 
 
 export const HeaderCommunication = () => {
     
-    const { currentStep, currentGoal, totalSteps } = useCommunicationStep()
+    const { currentStep, currentGoal, totalSteps, chat, sid, emotionList } = useCommunicationStep()
+    const { back } = useDirectionalRouter()
+    const { createEmpathy } = useGetEmpathy()
+    const { account } = useAccount()
     
     return (
         <div
@@ -22,8 +30,18 @@ export const HeaderCommunication = () => {
                 </div>
                 <Button.Communication
                     className='!w-fit !h-7 !text-12-regular px-1'
-                    onClick={() => {
-                        // TODO: 종료하기 클릭 시 동작
+                    onClick={async () => {
+                        const response = await createEmpathy({
+                            uid: account?.uid ?? '',
+                            sid,
+                            chats: chat,
+                            emotion: emotionList.join(', '),
+                            finished: false,
+                            isRemind: false
+                        })
+                        if (response) {
+                            back()
+                        }
                     }}
                 >
                     종료하기
