@@ -50,6 +50,7 @@ export const useGetEmpathy = () => {
             const empathy = doc.data() as ISelfEmpathy
             empathies.push(new SelfEmpathy({
                 ...empathy,
+                createdAt: doc.data().createdAt instanceof Timestamp ? doc.data().createdAt.toDate() : empathy.createdAt,
                 id: doc.id
             }))
         })
