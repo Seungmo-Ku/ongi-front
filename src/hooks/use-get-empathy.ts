@@ -1,6 +1,6 @@
 'use client'
 
-import { collection, doc, getDocs, getFirestore, query, setDoc, Timestamp, where } from '@firebase/firestore'
+import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, Timestamp, where } from '@firebase/firestore'
 import app from '../../firebaseConfig'
 import useAccount from '@/hooks/use-account'
 import { ISelfEmpathy, SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
@@ -40,6 +40,7 @@ export const useGetEmpathy = () => {
         const weeklyEmpathyQuery = query(
             collection(firestore, 'SelfEmpathy'),
             where('uid', '==', account.uid),
+            where('isRemind', '==', false),
             where('createdAt', '>=', Timestamp.fromDate(start)),
             where('createdAt', '<=', Timestamp.fromDate(end))
         )
@@ -55,6 +56,22 @@ export const useGetEmpathy = () => {
             }))
         })
         return empathies
+    }
+    
+    const getEmpathy = async (id: string) => {
+        
+        const docRef = doc(firestore, 'SelfEmpathy', id)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+            const empathy = docSnap.data() as ISelfEmpathy
+            return new SelfEmpathy({
+                ...empathy,
+                createdAt: docSnap.data().createdAt instanceof Timestamp ? docSnap.data().createdAt.toDate() : empathy.createdAt,
+                id: docSnap.id
+            })
+        } else {
+            return null
+        }
     }
     
     const createEmpathy = async (request: SelfEmpathyCreateRequest) => {
@@ -79,5 +96,5 @@ export const useGetEmpathy = () => {
         return false
     }
     
-    return { getWeeklyEmpathy, createEmpathy }
+    return { getWeeklyEmpathy, createEmpathy, getEmpathy }
 }

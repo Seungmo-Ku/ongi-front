@@ -12,7 +12,7 @@ import { useCommunicationStep } from '@/components/layout/communication-step-pro
 export default function Home() {
     const { push } = useDirectionalRouter()
     const { setStep, setWeek } = useRewindStep()
-    const { setChat, setEmotionList } = useCommunicationStep()
+    const { setChat, setEmotionList, setTotalSteps } = useCommunicationStep()
     
     const { isLoggedIn } = useAccount()
     
@@ -58,7 +58,10 @@ export default function Home() {
                     )}
                     {recordingButton('지난 일주일 회고하기', false,
                         () => {
+                            setChat([])
+                            setEmotionList([])
                             setStep(0)
+                            setTotalSteps(1)
                             setWeek(new Date())
                             push('/rewind')
                         }

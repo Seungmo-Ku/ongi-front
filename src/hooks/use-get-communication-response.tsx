@@ -50,6 +50,20 @@ export const useGetCommunicationResponse = () => {
         }
     }
     
+    const getCommunicationRewind = async (Step3Request: CommunicationStep3Request): Promise<CommunicationStep3Response | null> => {
+        if (!BASE_URL) return null
+        try {
+            const response = await axios.post(`${BASE_URL}/selfempathy/rewind`, Step3Request)
+            if (response.status === 200) {
+                return response.data as CommunicationStep3Response
+            } else {
+                return null
+            }
+        } catch {
+            return null
+        }
+    }
+    
     const getCommunicationSummary = async (SummaryRequest: CommunicationSummaryRequest): Promise<CommunicationSummaryResponse | null> => {
         if (!BASE_URL) return null
         try {
@@ -64,5 +78,5 @@ export const useGetCommunicationResponse = () => {
         }
     }
     
-    return { getCommunicationStep1, getCommunicationStep2, getCommunicationStep3, getCommunicationSummary }
+    return { getCommunicationStep1, getCommunicationStep2, getCommunicationStep3, getCommunicationSummary, getCommunicationRewind }
 }

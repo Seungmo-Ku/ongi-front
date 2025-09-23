@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
 import { isEmpty, noop } from 'lodash'
 import Box from '@/components/box'
+import { useDirectionalRouter } from '@/hooks/use-directional-router'
 
 
 interface RewindStepStart {
@@ -19,6 +20,7 @@ interface RewindStepStart {
 const RewindPage = () => {
     
     const { step, setStep, week } = useRewindStep()
+    const { push } = useDirectionalRouter()
     
     const [start, setStart] = useState(0)
     const [weeklyEmpathy, setWeeklyEmpathy] = useState<SelfEmpathy[]>([])
@@ -34,7 +36,7 @@ const RewindPage = () => {
     const { getWeeklyEmpathy } = useGetEmpathy()
     
     const fetchEmpathy = useCallback(async () => {
-        if(!isEmpty(weeklyEmpathy)) return
+        if (!isEmpty(weeklyEmpathy)) return
         const empathies = await getWeeklyEmpathy(week)
         if (!empathies) return
         setWeeklyEmpathy(empathies)
@@ -47,8 +49,12 @@ const RewindPage = () => {
             } else {
                 setStep(step + 1)
             }
+        } else if (step === 1 && selectedIndex !== null) {
+            // 선택된 날짜의 회고 페이지로 이동
+            push(`/communication/rewind/${weeklyEmpathy[selectedIndex].id}`) // id로 이동
         }
-    }, [setStep, start, step, stepStart.length])
+        
+    }, [push, selectedIndex, setStep, start, step, stepStart.length, weeklyEmpathy])
     
     useEffect(() => {
         fetchEmpathy().then(noop)
@@ -96,7 +102,7 @@ const RewindPage = () => {
                                                 selected={index === selectedIndex}
                                                 onClick={() => setSelectedIndex(index)}
                                             />
-                                        ) )
+                                        ))
                                     }
                                 </div>
                             )
