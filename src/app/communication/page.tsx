@@ -31,7 +31,8 @@ const CommunicationPage = () => {
     const chatBottomRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [step2StartText, setStep2StartText] = useState('그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네')
-    const [step3StartText, setStep3StartText] = useState('그랬구나. 그런 감정이 들었구나')
+    const [step2IntroductionText, setStep2IntroductionText] = useState('그럼 이번 친구들과의 모임으로 느낀 감정을 모두 골라볼래?')
+    const [step3StartText, setStep3StartText] = useState<string[]>(['그랬구나. 그런 감정이 들었구나'])
     
     const { account, user } = useAccount()
     
@@ -80,10 +81,14 @@ const CommunicationPage = () => {
                 ])
                 break
             case 3:
+                const newChats = step3StartText.map(chat => ({
+                    chat,
+                    isUser: false
+                }))
                 setChat([
                     ...chat,
                     { chat: emotionList.join(', '), isUser: true },
-                    { chat: step3StartText, isUser: false }
+                    ...newChats
                 ])
                 break
         }
@@ -97,7 +102,7 @@ const CommunicationPage = () => {
             case 2:
                 return <Communication.StepStart.Step2 text={step2StartText}/>
             case 3:
-                return <Communication.StepStart.Step3 text={step3StartText}/>
+                return <Communication.StepStart.Step3 text={step3StartText[0]}/>
             default:
                 return <div></div>
         }
@@ -120,10 +125,10 @@ const CommunicationPage = () => {
                 const response = await getCommunicationStep2({
                     uid: account?.uid ?? '',
                     sid,
-                    emotion: emotionList
+                    emotion: emotionList.join(', ')
                 })
                 if (response) {
-                    setStep3StartText(response.chats.join('\n'))
+                    setStep3StartText(response.chats)
                     goToNextStep()
                     setText('')
                     setUserChatCount(0)
@@ -165,6 +170,8 @@ const CommunicationPage = () => {
                     ])
                     if (response.done) {
                         if (currentStep === 1) {
+                            const introductionText = newChats.pop()?.chat ?? ''
+                            setStep2IntroductionText(introductionText)
                             setStep2StartText(newChats.map(chat => chat.chat).join('\n'))
                             goToNextStep()
                             setText('')
@@ -260,7 +267,7 @@ const CommunicationPage = () => {
                 showChat ? (
                     currentStep === 2 ? (
                         <div className='w-full h-full flex flex-col items-center justify-center text-white gap-y-10 px-[25px]'>
-                            <Box.SpeechBubble text='그럼 이번 친구들과의 모임으로 느낀 감정을 모두 골라볼래?'/>
+                            <Box.SpeechBubble text={step2IntroductionText}/>
                             <Box.EmotionsList emotionList={emotionList} setEmotionList={setEmotionList}/>
                         </div>
                     ) : (

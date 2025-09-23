@@ -12,7 +12,7 @@ export interface CommunicationStep1Response {
 export interface CommunicationStep2Request {
     uid: string
     sid: string
-    emotion: string[]
+    emotion: string
 }
 
 export interface CommunicationStep2Response {
