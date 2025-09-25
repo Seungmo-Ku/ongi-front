@@ -43,7 +43,12 @@ export default function RootLayout({
     return (
         <html lang='ko'>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full`}>
-        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden' style={{ height: 'calc(var(--vh, 1vh) * 100)' }}>
+        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden'
+             style={{
+                 height: 'calc(var(--vh, 1vh) * 100)',
+                 backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
+             }}
+        >
             <DirectionProvider>
                 <ClientSideWrapper>
                     <header className='w-full shrink-0'>

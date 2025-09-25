@@ -63,9 +63,6 @@ const RewindPage = () => {
     return (
         <div
             className='h-full w-full text-24-bold flex flex-col overflow-hidden relative'
-            style={{
-                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
-            }}
         >
             {
                 step === 0 && (

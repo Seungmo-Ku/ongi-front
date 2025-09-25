@@ -12,9 +12,11 @@ interface FooterComponentProps {
     backButtonText?: string
     onClick?: () => void
     onArrowClick?: () => void
-    onArrowLongClick?: () => void
+    onSendButtonClick?: () => void
+    showSendButton?: boolean // 이대로 보낼게 표시 여부
     text: string
     setText: (text: string) => void
+    disabled?: boolean
 }
 
 export const FooterComponent = ({
@@ -27,9 +29,11 @@ export const FooterComponent = ({
     backButtonText = '아닌 것 같아',
     onClick,
     onArrowClick,
-    onArrowLongClick,
+    onSendButtonClick,
+    showSendButton = false,
     text,
-    setText
+    setText,
+    disabled = false
 }: FooterComponentProps) => {
     return (
         <div className='absolute bottom-10 w-full px-5'>
@@ -57,9 +61,11 @@ export const FooterComponent = ({
                         isSelectingEmotion={isSelectingEmotion}
                         initialText={initialText}
                         onArrowClick={onArrowClick}
-                        onArrowLongClick={onArrowLongClick}
+                        onSendButtonClick={onSendButtonClick}
+                        showSendButton={showSendButton}
                         text={text}
                         setText={setText}
+                        disabled={disabled}
                     />
                 )
             }

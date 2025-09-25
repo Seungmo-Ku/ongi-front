@@ -7,11 +7,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Communication from '@/components/view/communication'
 import { isEmpty } from 'lodash'
 import Box from '@/components/box'
-import { Button } from '@headlessui/react'
 import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
 import useAccount from '@/hooks/use-account'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
+import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 
 
 const CommunicationStep = [
@@ -21,15 +21,12 @@ const CommunicationStep = [
 ]
 
 const CommunicationPage = () => {
-    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep, chat, setChat, sid, setSid, emotionList, setEmotionList } = useCommunicationStep()
+    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep, chat, setChat, sid, setSid, emotionList, setEmotionList, isLoading, setIsLoading, currentGoal } = useCommunicationStep()
     
     const [showChat, setShowChat] = useState(false)
     const [userChatCount, setUserChatCount] = useState(0)
     const [text, setText] = useState('')
-    const sendButtonRef = useRef<HTMLButtonElement>(null)
-    const [showSendButton, setShowSendButton] = useState(false)
     const chatBottomRef = useRef<HTMLDivElement>(null)
-    const [isLoading, setIsLoading] = useState(false)
     const [step2StartText, setStep2StartText] = useState('그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네')
     const [step2IntroductionText, setStep2IntroductionText] = useState('그럼 이번 친구들과의 모임으로 느낀 감정을 모두 골라볼래?')
     const [step3StartText, setStep3StartText] = useState<string[]>(['그랬구나. 그런 감정이 들었구나'])
@@ -136,11 +133,10 @@ const CommunicationPage = () => {
                 setIsLoading(false)
             }
         }
-    }, [account?.uid, chat, currentStep, emotionList, getCommunicationStep2, goToNextStep, isLoading, setChat, showChat, sid, text])
+    }, [account?.uid, chat, currentStep, emotionList, getCommunicationStep2, goToNextStep, isLoading, setChat, setIsLoading, showChat, sid, text])
     
     const doReply = useCallback(async () => {
         if (isLoading) return
-        setShowSendButton(false)
         
         if (userChatCount === 0) return
         switch (currentStep) {
@@ -176,7 +172,7 @@ const CommunicationPage = () => {
                             goToNextStep()
                             setText('')
                             setUserChatCount(0)
-                        }else {
+                        } else {
                             const response = await createEmpathy({
                                 uid: account?.uid ?? '',
                                 sid,
@@ -198,28 +194,7 @@ const CommunicationPage = () => {
                 setUserChatCount(0)
                 break
         }
-    }, [account?.uid, chat, createEmpathy, currentStep, emotionList, getCommunicationStep1, getCommunicationStep3, goToNextStep, isLoading, push, setChat, sid, userChatCount])
-    
-    const sendButton = useMemo(() => {
-        return (
-            <div className='absolute !bottom-[90px] self-end px-5'>
-                <Button
-                    ref={sendButtonRef}
-                    onClick={doReply}
-                    className='no-select h-10 bg-white border border-[#578FCA] text-[#3674B5] text-13-regular px-4 rounded-[30px] rounded-br-none transition duration-200 active:scale-95 ease-in-out'
-                >
-                    이대로 보낼게!
-                </Button>
-            </div>
-        
-        )
-    }, [doReply])
-    
-    const onArrowLongClick = useCallback(() => {
-        if (currentStep === 2) return
-        if (userChatCount === 0) return
-        setShowSendButton(true)
-    }, [currentStep, userChatCount])
+    }, [account?.uid, chat, createEmpathy, currentStep, emotionList, getCommunicationStep1, getCommunicationStep3, goToNextStep, isLoading, push, setChat, setIsLoading, sid, userChatCount])
     
     const onBackButtonClick = useCallback(() => {
         if (currentStep !== 3) return
@@ -241,38 +216,25 @@ const CommunicationPage = () => {
         }
     }, [currentStep])
     
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (sendButtonRef.current && !sendButtonRef.current.contains(event?.target as Node)) {
-                setShowSendButton(false)
-                event.preventDefault()
-                event.stopPropagation()
-            }
-        }
-        
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [])
-    
     return (
         <div
             className='relative h-full w-full text-24-bold flex flex-col overflow-hidden'
-            style={{
-                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
-            }}
         >
+            <div className='absolute w-full top-0 z-10'>
+                <HeaderCommunicationGoal text={currentGoal}/>
+            </div>
             {
                 showChat ? (
                     currentStep === 2 ? (
-                        <div className='w-full h-full flex flex-col items-center justify-center text-white gap-y-10 px-[25px]'>
+                        <div className='w-full h-full flex flex-col items-center justify-center text-white gap-y-2 px-[25px] mt-10'>
                             <Box.SpeechBubble text={step2IntroductionText}/>
-                            <Box.EmotionsList emotionList={emotionList} setEmotionList={setEmotionList}/>
+                            <div className='mb-[70px] w-full'>
+                                <Box.EmotionsList emotionList={emotionList} setEmotionList={setEmotionList}/>
+                            </div>
+                        
                         </div>
                     ) : (
-                        <div className='w-full h-full flex flex-col overflow-hidden mb-[100px]'>
-                            <div className='h-10'/>
+                        <div className='w-full h-full flex flex-col overflow-hidden mb-[100px] pt-10'>
                             <div className='w-full overflow-y-scroll'>
                                 <CommunicationView.ChatLog chats={chat}/>
                                 <div ref={chatBottomRef}/>
@@ -286,20 +248,21 @@ const CommunicationPage = () => {
                 
                 )
             }
-            {showSendButton && sendButton}
             <CommunicationView.FooterComponent
                 isChatting={showChat}
                 onClick={goToCurrentStep} // 채팅 창 아닐 때
                 text={text}
                 setText={setText}
                 onArrowClick={onArrowClick}
-                onArrowLongClick={onArrowLongClick}
+                onSendButtonClick={doReply}
+                showSendButton={userChatCount > 0 && !isLoading && isEmpty(text)}
                 buttonText={footerButtonText}
                 isSelectingEmotion={currentStep === 2}
                 initialText={emotionList.join(', ')}
                 showBackButton={currentStep === 3}
                 backButtonOnClick={onBackButtonClick}
                 backButtonText='아닌 것 같아'
+                disabled={isLoading || (currentStep === 2 && isEmpty(emotionList))}
             />
         </div>
     )

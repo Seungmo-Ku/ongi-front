@@ -5,17 +5,17 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CommunicationView from '@/components/view/communication'
 import useAccount from '@/hooks/use-account'
 import { isEmpty } from 'lodash'
-import { Button } from '@headlessui/react'
 import { Chat } from '@/components/view/communication/chat-log'
 import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
+import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 
 
 const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = React.use(params)
-    const { setCurrentGoal, chat, setChat, sid, setSid } = useCommunicationStep()
+    const { setCurrentGoal, chat, setChat, sid, setSid, isLoading, setIsLoading, currentGoal } = useCommunicationStep()
     const { account, user } = useAccount()
     const { getCommunicationRewind } = useGetCommunicationResponse()
     const { createEmpathy, getEmpathy } = useGetEmpathy()
@@ -24,11 +24,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     const chatBottomRef = useRef<HTMLDivElement>(null)
     
     const [text, setText] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
     const [userChatCount, setUserChatCount] = useState(0)
-    const [showSendButton, setShowSendButton] = useState(false)
-    const sendButtonRef = useRef<HTMLButtonElement>(null)
-    
     const [empathy, setEmpathy] = useState<SelfEmpathy | null>(null)
     
     const decodedId = useMemo(() => decodeURIComponent(id), [id])
@@ -75,7 +71,6 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     
     const doReply = useCallback(async () => {
         if (isLoading) return
-        setShowSendButton(false)
         
         if (userChatCount === 0) return
         
@@ -117,65 +112,28 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
         setIsLoading(false)
         setUserChatCount(0)
         
-    }, [account?.uid, chat, createEmpathy, getCommunicationRewind, isLoading, push, setChat, sid, userChatCount])
-    
-    const sendButton = useMemo(() => {
-        return (
-            <div className='absolute !bottom-[90px] self-end px-5'>
-                <Button
-                    ref={sendButtonRef}
-                    onClick={doReply}
-                    className='no-select h-10 bg-white border border-[#578FCA] text-[#3674B5] text-13-regular px-4 rounded-[30px] rounded-br-none transition duration-200 active:scale-95 ease-in-out'
-                >
-                    이대로 보낼게!
-                </Button>
-            </div>
-        
-        )
-    }, [doReply])
-    
-    const onArrowLongClick = useCallback(() => {
-        if (userChatCount === 0) return
-        setShowSendButton(true)
-    }, [userChatCount])
-    
-    // noinspection DuplicatedCode
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (sendButtonRef.current && !sendButtonRef.current.contains(event?.target as Node)) {
-                setShowSendButton(false)
-                event.preventDefault()
-                event.stopPropagation()
-            }
-        }
-        
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [])
+    }, [account?.uid, chat, createEmpathy, getCommunicationRewind, isLoading, push, setChat, setIsLoading, sid, userChatCount])
     
     return (
         <div
             className='relative h-full w-full text-24-bold flex flex-col overflow-hidden'
-            style={{
-                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
-            }}
         >
-            <div className='w-full h-full flex flex-col overflow-hidden mb-[100px]'>
-                <div className='h-10'/>
+            <div className='absolute w-full top-0 z-10'>
+                <HeaderCommunicationGoal text={currentGoal}/>
+            </div>
+            <div className='w-full h-full flex flex-col overflow-hidden mb-[100px] pt-10'>
                 <div className='w-full overflow-y-scroll'>
                     <CommunicationView.ChatLog chats={chat}/>
                     <div ref={chatBottomRef}/>
                 </div>
             </div>
-            {showSendButton && sendButton}
             <CommunicationView.FooterComponent
                 isChatting
                 text={text}
                 setText={setText}
                 onArrowClick={onArrowClick}
-                onArrowLongClick={onArrowLongClick}
+                showSendButton={userChatCount > 0 && !isLoading && isEmpty(text)}
+                onSendButtonClick={doReply}
             />
         </div>
     )

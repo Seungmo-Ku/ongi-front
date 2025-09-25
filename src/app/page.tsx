@@ -39,9 +39,6 @@ export default function Home() {
     return (
         <div
             className='w-full h-full flex flex-col items-center justify-start text-white pt-20 px-6 gap-y-8'
-            style={{
-                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
-            }}
         >
             <Character.Image mode='welcome' width={100} height={130}/>
             <div className='flex flex-col gap-y-4 w-full'>

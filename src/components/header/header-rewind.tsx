@@ -14,9 +14,6 @@ export const HeaderRewind = () => {
     return (
         <div
             className={clsx('w-full flex items-center gap-y-2.5 px-4 pt-4', (step === 0) ? 'justify-between' : 'justify-end')}
-            style={{
-                backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'top'
-            }}
         >
             {
                 (step === 0) && (
