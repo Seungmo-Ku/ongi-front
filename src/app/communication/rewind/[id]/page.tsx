@@ -11,6 +11,7 @@ import { useGetEmpathy } from '@/hooks/use-get-empathy'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
+import { handleUnload } from '@/libs/utils/handle-reload'
 
 
 const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -28,6 +29,15 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     const [empathy, setEmpathy] = useState<SelfEmpathy | null>(null)
     
     const decodedId = useMemo(() => decodeURIComponent(id), [id])
+    
+    useEffect(() => {
+        if (!isEmpty(chat)) {
+            window.addEventListener('beforeunload', handleUnload)
+        }
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload)
+        }
+    }, [chat])
     
     useEffect(() => {
         if (id && !empathy) {

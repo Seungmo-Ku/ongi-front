@@ -12,6 +12,7 @@ import useAccount from '@/hooks/use-account'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
+import { handleUnload } from '@/libs/utils/handle-reload'
 
 
 const CommunicationStep = [
@@ -36,6 +37,15 @@ const CommunicationPage = () => {
     const { getCommunicationStep1, getCommunicationStep2, getCommunicationStep3 } = useGetCommunicationResponse()
     const { createEmpathy } = useGetEmpathy()
     const { push } = useDirectionalRouter()
+    
+    useEffect(() => {
+        if (!isEmpty(chat)) {
+            window.addEventListener('beforeunload', handleUnload)
+        }
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload)
+        }
+    }, [chat])
     
     useEffect(() => {
         setTotalSteps(3)
