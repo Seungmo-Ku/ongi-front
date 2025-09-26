@@ -4,6 +4,7 @@ import { Textarea } from '@headlessui/react'
 import Button from '@/components/button'
 import { ArrowUp } from 'lucide-react'
 import React, { useCallback, useEffect, useRef } from 'react'
+import { atom, useSetAtom } from 'jotai'
 
 
 interface FooterInputSendProps {
@@ -17,6 +18,8 @@ interface FooterInputSendProps {
     disabled?: boolean
 }
 
+export const isTextAreaFocusedAtom = atom(false)
+
 export const FooterInputSend = ({
     isSelectingEmotion = false,
     initialText = '',
@@ -27,6 +30,7 @@ export const FooterInputSend = ({
     setText,
     disabled = false
 }: FooterInputSendProps) => {
+    const setFocused = useSetAtom(isTextAreaFocusedAtom)
     const textareaRef = useRef<HTMLTextAreaElement | null>(null)
     
     useEffect(() => {
@@ -65,6 +69,8 @@ export const FooterInputSend = ({
                     rows={1}
                     style={{ minHeight: '2.5rem' }}
                     placeholder='디디에게 대답하기'
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
                 />
             }
             <Button.Send onClick={onArrowClick} onClickSendButton={onSendButtonClick} showSendButton={showSendButton} disabled={disabled}>

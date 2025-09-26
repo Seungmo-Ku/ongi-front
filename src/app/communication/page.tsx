@@ -13,6 +13,8 @@ import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 import { handleUnload } from '@/libs/utils/handle-reload'
+import { useAtomValue } from 'jotai'
+import { isTextAreaFocusedAtom } from '@/components/view/communication/footer-input-send'
 
 
 const CommunicationStep = [
@@ -37,6 +39,8 @@ const CommunicationPage = () => {
     const { getCommunicationStep1, getCommunicationStep2, getCommunicationStep3 } = useGetCommunicationResponse()
     const { createEmpathy } = useGetEmpathy()
     const { push } = useDirectionalRouter()
+    
+    const isTextAreaFocused = useAtomValue(isTextAreaFocusedAtom)
     
     useEffect(() => {
         if (!isEmpty(chat)) {
@@ -265,7 +269,7 @@ const CommunicationPage = () => {
                 setText={setText}
                 onArrowClick={onArrowClick}
                 onSendButtonClick={doReply}
-                showSendButton={userChatCount > 0 && !isLoading && isEmpty(text)}
+                showSendButton={userChatCount > 0 && !isLoading && !isTextAreaFocused && isEmpty(text)}
                 buttonText={footerButtonText}
                 isSelectingEmotion={currentStep === 2}
                 initialText={emotionList.join(', ')}
