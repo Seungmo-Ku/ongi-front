@@ -51,10 +51,22 @@ export const useGetEmpathy = () => {
             const empathy = doc.data() as ISelfEmpathy
             empathies.push(new SelfEmpathy({
                 ...empathy,
+                reviewSummary: doc.data().reviewSummary || '',
                 createdAt: doc.data().createdAt instanceof Timestamp ? doc.data().createdAt.toDate() : empathy.createdAt,
                 id: doc.id
             }))
         })
+        if (empathies.length === 0) return [{
+            id: 'no-data',
+            uid: account.uid,
+            chats: [],
+            createdAt: new Date(),
+            emotion: '',
+            finished: true,
+            isRemind: false,
+            summary: '이번 주에 기록된 회고가 없어요. 지난 일주일 동안의 마음을 돌아보고, 새로운 한 주를 맞이해요!',
+            reviewSummary: ''
+        }]
         return empathies
     }
     
@@ -89,7 +101,8 @@ export const useGetEmpathy = () => {
                 emotion: request.emotion,
                 finished: request.finished,
                 isRemind: request.isRemind,
-                summary: response.summary
+                summary: response.summary,
+                reviewSummary: response.reviewSummary
             })
             return true
         }

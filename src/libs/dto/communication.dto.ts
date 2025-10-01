@@ -23,6 +23,10 @@ export type CommunicationStep3Request = CommunicationStep1Request
 
 export type CommunicationStep3Response = CommunicationStep1Response
 
+export type CommunicationRewindRequest = CommunicationStep1Request & { summaryText: string }
+
+export type CommunicationRewindResponse = CommunicationStep1Response
+
 export interface CommunicationSummaryRequest {
     uid: string
     sid: string
@@ -30,4 +34,5 @@ export interface CommunicationSummaryRequest {
 
 export interface CommunicationSummaryResponse {
     summary: string
+    reviewSummary: string
 }

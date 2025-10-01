@@ -1,6 +1,6 @@
 'use client'
 
-import { CommunicationStep1Request, CommunicationStep1Response, CommunicationStep2Request, CommunicationStep2Response, CommunicationStep3Request, CommunicationStep3Response, CommunicationSummaryRequest, CommunicationSummaryResponse } from '@/libs/dto/communication.dto'
+import { CommunicationRewindRequest, CommunicationRewindResponse, CommunicationStep1Request, CommunicationStep1Response, CommunicationStep2Request, CommunicationStep2Response, CommunicationStep3Request, CommunicationStep3Response, CommunicationSummaryRequest, CommunicationSummaryResponse } from '@/libs/dto/communication.dto'
 import axios from 'axios'
 
 
@@ -50,12 +50,12 @@ export const useGetCommunicationResponse = () => {
         }
     }
     
-    const getCommunicationRewind = async (Step3Request: CommunicationStep3Request): Promise<CommunicationStep3Response | null> => {
+    const getCommunicationRewind = async (RewindRequest: CommunicationRewindRequest): Promise<CommunicationRewindResponse | null> => {
         if (!BASE_URL) return null
         try {
-            const response = await axios.post(`${BASE_URL}/selfempathy/rewind`, Step3Request)
+            const response = await axios.post(`${BASE_URL}/selfempathy/review`, RewindRequest)
             if (response.status === 200) {
-                return response.data as CommunicationStep3Response
+                return response.data as CommunicationRewindResponse
             } else {
                 return null
             }

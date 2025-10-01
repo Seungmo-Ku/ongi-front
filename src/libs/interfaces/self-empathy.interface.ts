@@ -10,6 +10,7 @@ export interface ISelfEmpathy {
     finished: boolean
     isRemind: boolean
     summary: string
+    reviewSummary?: string
 }
 
 export class SelfEmpathy implements ISelfEmpathy {
@@ -21,6 +22,7 @@ export class SelfEmpathy implements ISelfEmpathy {
     finished: boolean
     isRemind: boolean
     summary: string
+    reviewSummary?: string
     
     constructor(data: ISelfEmpathy) {
         this.id = data.id
@@ -31,5 +33,6 @@ export class SelfEmpathy implements ISelfEmpathy {
         this.finished = data.finished
         this.isRemind = data.isRemind
         this.summary = data.summary
+        this.reviewSummary = data.reviewSummary || ''
     }
 }

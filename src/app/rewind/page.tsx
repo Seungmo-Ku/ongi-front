@@ -37,6 +37,7 @@ const RewindPage = () => {
     
     const fetchEmpathy = useCallback(async () => {
         if (!isEmpty(weeklyEmpathy)) return
+        if (weeklyEmpathy?.length === 1 && weeklyEmpathy[0].id === 'no-data') return
         const empathies = await getWeeklyEmpathy(week)
         if (!empathies) return
         setWeeklyEmpathy(empathies)
@@ -87,7 +88,7 @@ const RewindPage = () => {
                             />
                         </div>
                         {
-                            !isEmpty(weeklyEmpathy) && (
+                            !isEmpty(weeklyEmpathy) && weeklyEmpathy.length > 0 && weeklyEmpathy[0].id !== 'no-data' && (
                                 <div className='w-full flex flex-col items-center text-black shrink-0'>
                                     {
                                         weeklyEmpathy.map((empathy, index) => (

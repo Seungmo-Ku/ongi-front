@@ -43,7 +43,7 @@ export const HeaderCommunication = () => {
                             chats: chat,
                             emotion: emotionList.join(', '),
                             finished: false,
-                            isRemind: isEmpty(emotionList) // 이걸 만족하면 rewind
+                            isRemind: isEmpty(emotionList) && totalSteps < 3 // 이걸 만족하면 rewind
                         })
                         if (response) {
                             back()

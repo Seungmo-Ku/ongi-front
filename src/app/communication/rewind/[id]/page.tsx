@@ -48,7 +48,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     useEffect(() => {
         if (empathy) {
             setChat([
-                { chat: empathy.summary, isUser: false }
+                { chat: empathy.reviewSummary ?? '', isUser: false }
             ])
         }
     }, [empathy, setChat])
@@ -90,7 +90,8 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
             await getCommunicationRewind({
                 uid: account?.uid ?? '',
                 sid,
-                message: lastUserChats.join('\n')
+                message: lastUserChats.join('\n'),
+                summaryText: empathy?.reviewSummary ?? ''
             })
         if (response) {
             const newChats: Chat[] = response.chats.map(chat => ({
@@ -122,7 +123,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
         setIsLoading(false)
         setUserChatCount(0)
         
-    }, [account?.uid, chat, createEmpathy, getCommunicationRewind, isLoading, push, setChat, setIsLoading, sid, userChatCount])
+    }, [account?.uid, chat, createEmpathy, empathy?.reviewSummary, getCommunicationRewind, isLoading, push, setChat, setIsLoading, sid, userChatCount])
     
     return (
         <div
