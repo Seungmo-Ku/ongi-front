@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useState } from 'react'
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react'
 import { Account } from '@/libs/interfaces/account.interface'
 import { User } from '@firebase/auth'
 
@@ -9,6 +9,7 @@ type AccountContextType = {
     setAccount: (account: Account | null) => void
     user: User | null
     setUser: (user: User | null) => void
+    nickname: string
 }
 
 const AccountContext = createContext<AccountContextType>({
@@ -17,15 +18,20 @@ const AccountContext = createContext<AccountContextType>({
     },
     user: null,
     setUser: () => {
-    }
+    },
+    nickname: ''
 })
 
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
     const [account, setAccount] = useState<Account | null>(null)
     const [user, setUser] = useState<User | null>(null)
     
+    const nickname = useMemo(() => {
+        return account ? (account.nickname ?? '') : ''
+    }, [account])
+    
     return (
-        <AccountContext.Provider value={{ account, setAccount, user, setUser }}>
+        <AccountContext.Provider value={{ account, setAccount, user, setUser, nickname }}>
             {children}
         </AccountContext.Provider>
     )
