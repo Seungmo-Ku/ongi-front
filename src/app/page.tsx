@@ -19,23 +19,24 @@ export default function Home() {
     const { setChat, setEmotionList, setTotalSteps } = useCommunicationStep()
     
     const { account, user, setUser } = useAccount()
-    const { isLoggedIn, updateUserAccount } = useAccountDocument()
+    const { updateUserAccount } = useAccountDocument()
     
     const [dialogOpen, setDialogOpen] = useState(false)
     
     useEffect(() => {
         const auth = getAuth()
         const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-            if (user === firebaseUser) return
+            if (user?.uid === firebaseUser?.uid) return
             setUser(firebaseUser)
-            updateUserAccount(firebaseUser).then(noop)
+            if (firebaseUser) updateUserAccount(firebaseUser).then(noop)
         })
         return () => unsubscribe()
-    }, [setUser, updateUserAccount, user])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [setUser, updateUserAccount])
     
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (!isLoggedIn) {
+            if (!account) {
                 push('/login')
             } else {
                 if (isEmpty(account?.nickname)) {
@@ -44,7 +45,7 @@ export default function Home() {
             }
         }, 500)
         return () => clearTimeout(timer)
-    }, [account?.nickname, isLoggedIn, push])
+    }, [account, push])
     
     const recordingButton = useCallback((text: string, disabled: boolean, onClick: () => void) => {
         return (
