@@ -60,7 +60,7 @@ const CommunicationPage = () => {
     
     useEffect(() => {
         chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [chat])
+    }, [chat, showTyping])
     
     useEffect(() => {
         if (!sid && account?.uid && user) {

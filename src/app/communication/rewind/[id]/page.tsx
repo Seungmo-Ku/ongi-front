@@ -56,7 +56,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     
     useEffect(() => {
         chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [chat])
+    }, [chat, showTyping])
     
     useEffect(() => {
         setCurrentGoal('그날의 나에게, 지금 말을 건네보세요')
