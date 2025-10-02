@@ -3,7 +3,6 @@
 import { useCommunicationStep } from '@/components/layout/communication-step-provider'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CommunicationView from '@/components/view/communication'
-import useAccount from '@/hooks/use-account'
 import { isEmpty } from 'lodash'
 import { Chat } from '@/components/view/communication/chat-log'
 import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
@@ -12,6 +11,7 @@ import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 import { handleUnload } from '@/libs/utils/handle-reload'
+import { useAccount } from '@/components/layout/account-context-provider'
 
 
 const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }) => {

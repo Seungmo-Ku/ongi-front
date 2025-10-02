@@ -5,9 +5,9 @@ import { useCommunicationStep } from '@/components/layout/communication-step-pro
 import Button from '@/components/button'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
-import useAccount from '@/hooks/use-account'
 import { usePathname } from 'next/navigation'
 import { isEmpty } from 'lodash'
+import { useAccount } from '@/components/layout/account-context-provider'
 
 
 export const HeaderCommunication = () => {

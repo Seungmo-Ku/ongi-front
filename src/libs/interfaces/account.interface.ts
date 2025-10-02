@@ -7,6 +7,7 @@ export interface IAccount {
     updatedAt: Date
     exp: number
     level: number
+    nickname?: string
 }
 
 export class Account implements IAccount {
@@ -18,6 +19,7 @@ export class Account implements IAccount {
     updatedAt: Date
     exp: number
     level: number
+    nickname?: string
 
     constructor(account: IAccount) {
         this.uid = account.uid
@@ -28,5 +30,6 @@ export class Account implements IAccount {
         this.updatedAt = new Date(account.updatedAt)
         this.exp = account.exp || 0
         this.level = account.level || 0
+        this.nickname = account.nickname || ''
     }
 }

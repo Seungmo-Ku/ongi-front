@@ -8,13 +8,13 @@ import Communication from '@/components/view/communication'
 import { isEmpty } from 'lodash'
 import Box from '@/components/box'
 import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
-import useAccount from '@/hooks/use-account'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetEmpathy } from '@/hooks/use-get-empathy'
 import { HeaderCommunicationGoal } from '@/components/header/communucation/header-communication-goal'
 import { handleUnload } from '@/libs/utils/handle-reload'
 import { useAtomValue } from 'jotai'
 import { isTextAreaFocusedAtom } from '@/components/view/communication/footer-input-send'
+import { useAccount } from '@/components/layout/account-context-provider'
 
 
 const CommunicationStep = [

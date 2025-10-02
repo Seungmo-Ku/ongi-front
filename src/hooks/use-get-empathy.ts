@@ -2,10 +2,10 @@
 
 import { collection, doc, getDoc, getDocs, getFirestore, query, setDoc, Timestamp, where } from '@firebase/firestore'
 import app from '../../firebaseConfig'
-import useAccount from '@/hooks/use-account'
 import { ISelfEmpathy, SelfEmpathy } from '@/libs/interfaces/self-empathy.interface'
 import { SelfEmpathyCreateRequest } from '@/libs/dto/selfempathy.dto'
 import { useGetCommunicationResponse } from '@/hooks/use-get-communication-response'
+import { useAccount } from '@/components/layout/account-context-provider'
 
 
 export const useGetEmpathy = () => {

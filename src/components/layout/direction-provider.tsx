@@ -3,6 +3,7 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
 import { StepProvider } from '@/components/layout/communication-step-provider'
 import { RewindStepProvider } from '@/components/layout/rewind-step-provider'
+import { AccountProvider } from '@/components/layout/account-context-provider'
 
 
 type Direction = 'forward' | 'backward'
@@ -23,11 +24,13 @@ const DirectionProvider = ({ children }: { children: ReactNode }) => {
     
     return (
         <DirectionContext.Provider value={{ direction, setDirection }}>
-            <StepProvider>
-                <RewindStepProvider>
-                    {children}
-                </RewindStepProvider>
-            </StepProvider>
+            <AccountProvider>
+                <StepProvider>
+                    <RewindStepProvider>
+                        {children}
+                    </RewindStepProvider>
+                </StepProvider>
+            </AccountProvider>
         </DirectionContext.Provider>
     )
 }

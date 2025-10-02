@@ -3,13 +3,13 @@
 import { doc, getDoc, getFirestore, setDoc } from '@firebase/firestore'
 import { User } from '@firebase/auth'
 import { Account } from '@/libs/interfaces/account.interface'
-import { useState } from 'react'
 import app from '../../firebaseConfig'
+import { useAccount } from '@/components/layout/account-context-provider'
 
 
 export const useAccountDocument = () => {
     const firestore = getFirestore(app)
-    const [account, setAccount] = useState<Account | null>(null)
+    const { account, setAccount, user: currentUser } = useAccount()
     
     const updateUserAccount = async (user: User | null): Promise<void> => {
         if (!user) {
@@ -44,7 +44,6 @@ export const useAccountDocument = () => {
         }
         
         const accountData = docSnap.data()
-        
         setAccount(new Account({
             uid: accountData.uid,
             email: accountData.email,
@@ -53,9 +52,42 @@ export const useAccountDocument = () => {
             createdAt: new Date(accountData.createdAt.toDate()),
             updatedAt: new Date(accountData.updatedAt.toDate()),
             exp: accountData.exp || 0,
-            level: accountData.level || 0
+            level: accountData.level || 0,
+            nickname: accountData.nickname || ''
         }))
     }
     
-    return { updateUserAccount, account }
+    const updateAccountNickname = async (uid: string, nickname: string): Promise<boolean> => {
+        const accountDocRef = doc(firestore, 'Accounts', uid)
+        const docSnap = await getDoc(accountDocRef)
+        try {
+            if (!docSnap.exists()) {
+                return false
+            }
+            await setDoc(accountDocRef, {
+                ...account,
+                nickname,
+                updatedAt: new Date()
+            })
+            const accountData = docSnap.data()
+            setAccount(new Account({
+                uid: accountData.uid,
+                email: accountData.email,
+                displayName: accountData.displayName,
+                photoURL: accountData.photoURL,
+                createdAt: new Date(accountData.createdAt.toDate()),
+                updatedAt: new Date(accountData.updatedAt.toDate()),
+                exp: accountData.exp || 0,
+                level: accountData.level || 0,
+                nickname: nickname
+            }))
+            return true
+        } catch {
+            return false
+        }
+    }
+    
+    const isLoggedIn = !!currentUser && !!account
+    
+    return { updateUserAccount, updateAccountNickname, isLoggedIn }
 }

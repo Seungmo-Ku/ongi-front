@@ -1,12 +1,16 @@
 'use client'
 
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import useAccount from '@/hooks/use-account'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Character from '@/components/character'
 import clsx from 'clsx'
 import { useRewindStep } from '@/components/layout/rewind-step-provider'
 import { useCommunicationStep } from '@/components/layout/communication-step-provider'
+import { isEmpty, noop } from 'lodash'
+import { Dialog } from '@/components/dialog'
+import { useAccount } from '@/components/layout/account-context-provider'
+import { useAccountDocument } from '@/hooks/use-account-document'
+import { getAuth } from '@firebase/auth'
 
 
 export default function Home() {
@@ -14,16 +18,33 @@ export default function Home() {
     const { setStep, setWeek } = useRewindStep()
     const { setChat, setEmotionList, setTotalSteps } = useCommunicationStep()
     
-    const { isLoggedIn } = useAccount()
+    const { account, user, setUser } = useAccount()
+    const { isLoggedIn, updateUserAccount } = useAccountDocument()
+    
+    const [dialogOpen, setDialogOpen] = useState(false)
+    
+    useEffect(() => {
+        const auth = getAuth()
+        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+            if (user === firebaseUser) return
+            setUser(firebaseUser)
+            updateUserAccount(firebaseUser).then(noop)
+        })
+        return () => unsubscribe()
+    }, [setUser, updateUserAccount, user])
     
     useEffect(() => {
         const timer = setTimeout(() => {
             if (!isLoggedIn) {
                 push('/login')
+            } else {
+                if (isEmpty(account?.nickname)) {
+                    setDialogOpen(true)
+                }
             }
         }, 500)
         return () => clearTimeout(timer)
-    }, [isLoggedIn, push])
+    }, [account?.nickname, isLoggedIn, push])
     
     const recordingButton = useCallback((text: string, disabled: boolean, onClick: () => void) => {
         return (
@@ -65,6 +86,7 @@ export default function Home() {
                     )}
                 </div>
             </div>
+            <Dialog.NicknameSet open={dialogOpen} onClose={() => setDialogOpen(false)}/>
         </div>
     )
 }
