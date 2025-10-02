@@ -8,10 +8,12 @@ export interface Chat {
 
 interface ChatLogProps {
     chats: Chat[]
+    showTyping?: boolean
 }
 
 export const ChatLog = ({
-    chats
+    chats,
+    showTyping = false
 }: ChatLogProps) => {
     // 다음 chat 이 user 인지 아닌 지 모르니까 다음 chat 에서 marginTop 을 줘서 간격
     return (
@@ -32,6 +34,11 @@ export const ChatLog = ({
                         />
                     )
                 })
+            }
+            {
+                showTyping && (
+                    <Box.Typing />
+                )
             }
         </div>
     )

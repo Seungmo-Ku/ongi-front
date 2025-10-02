@@ -1,17 +1,20 @@
 import React from 'react'
 import clsx from 'clsx'
+import { isEmpty } from 'lodash'
 
 
 interface BoxCommunicationTextProps {
     text: string
     className?: string
     isUser?: boolean
+    children?: React.ReactNode
 }
 
 export const BoxCommunicationText = ({
     text,
     className = '',
     isUser = false,
+    children = null,
     ...props
 }: BoxCommunicationTextProps) => {
     
@@ -22,7 +25,7 @@ export const BoxCommunicationText = ({
             {...props}
             className={clsx('rounded-[20px] max-w-3/4 text-14-regular break-words px-4 py-[9px] transition duration-300 active:scale-95', textColorClass, className)}
         >
-            {text}
+            {!isEmpty(text) ? text : children}
         </div>
     )
 }

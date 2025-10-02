@@ -33,6 +33,7 @@ const CommunicationPage = () => {
     const [step2StartText, setStep2StartText] = useState('그런 이야기를 나눌 수 있는 친구들이 있다는 게 정말 소중하네')
     const [step2IntroductionText, setStep2IntroductionText] = useState('그럼 이번 친구들과의 모임으로 느낀 감정을 모두 골라볼래?')
     const [step3StartText, setStep3StartText] = useState<string[]>(['그랬구나. 그런 감정이 들었구나'])
+    const [showTyping, setShowTyping] = useState(false)
     
     const { account, user } = useAccount()
     
@@ -158,6 +159,9 @@ const CommunicationPage = () => {
             case 3:
                 const lastUserChats = chat.filter(c => c.isUser).slice(-userChatCount).map(c => c.chat)
                 setIsLoading(true)
+                setTimeout(() => {
+                    setShowTyping(true)
+                }, 200)
                 const response = currentStep === 1 ?
                                  await getCommunicationStep1({
                                      uid: account?.uid ?? '',
@@ -170,6 +174,7 @@ const CommunicationPage = () => {
                                      message: lastUserChats.join('\n')
                                  })
                 if (response) {
+                    setShowTyping(false)
                     const newChats: Chat[] = response.chats.map(chat => ({
                         chat,
                         isUser: false
@@ -248,9 +253,13 @@ const CommunicationPage = () => {
                         
                         </div>
                     ) : (
-                        <div className='w-full h-full flex flex-col overflow-hidden mb-[100px] pt-10'>
-                            <div className='w-full overflow-y-scroll'>
-                                <CommunicationView.ChatLog chats={chat}/>
+                        <div className='w-full h-full flex flex-col overflow-hidden mb-[100px]'>
+                            <div className='w-full overflow-y-scroll hide-sidebar'>
+                                <div className='h-[48px]'/>
+                                <CommunicationView.ChatLog
+                                    chats={chat}
+                                    showTyping={showTyping}
+                                />
                                 <div ref={chatBottomRef}/>
                             </div>
                         </div>

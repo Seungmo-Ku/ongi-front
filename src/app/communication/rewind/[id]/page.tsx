@@ -27,6 +27,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
     const [text, setText] = useState('')
     const [userChatCount, setUserChatCount] = useState(0)
     const [empathy, setEmpathy] = useState<SelfEmpathy | null>(null)
+    const [showTyping, setShowTyping] = useState(false)
     
     const decodedId = useMemo(() => decodeURIComponent(id), [id])
     
@@ -86,6 +87,9 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
         
         const lastUserChats = chat.filter(c => c.isUser).slice(-userChatCount).map(c => c.chat)
         setIsLoading(true)
+        setTimeout(() => {
+            setShowTyping(true)
+        }, 200)
         const response =
             await getCommunicationRewind({
                 uid: account?.uid ?? '',
@@ -94,6 +98,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
                 summaryText: empathy?.reviewSummary ?? ''
             })
         if (response) {
+            setShowTyping(false)
             const newChats: Chat[] = response.chats.map(chat => ({
                 chat,
                 isUser: false
@@ -132,9 +137,13 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
             <div className='absolute w-full top-0 z-10'>
                 <HeaderCommunicationGoal text={currentGoal}/>
             </div>
-            <div className='w-full h-full flex flex-col overflow-hidden mb-[100px] pt-10'>
+            <div className='w-full h-full flex flex-col overflow-hidden mb-[100px]'>
                 <div className='w-full overflow-y-scroll'>
-                    <CommunicationView.ChatLog chats={chat}/>
+                    <div className='h-[48px]'/>
+                    <CommunicationView.ChatLog
+                        chats={chat}
+                        showTyping={showTyping}
+                    />
                     <div ref={chatBottomRef}/>
                 </div>
             </div>
@@ -145,6 +154,7 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
                 onArrowClick={onArrowClick}
                 showSendButton={userChatCount > 0 && !isLoading && isEmpty(text)}
                 onSendButtonClick={doReply}
+                disabled={isLoading}
             />
         </div>
     )
