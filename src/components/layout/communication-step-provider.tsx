@@ -10,6 +10,7 @@ type StepContextType = {
     sid: string
     emotionList: string[]
     isLoading: boolean
+    isTerminating: boolean
     setCurrentStep: (step: number) => void
     setTotalSteps: (steps: number) => void
     setCurrentGoal: (goal: string) => void
@@ -17,6 +18,7 @@ type StepContextType = {
     setSid: (sid: string) => void
     setEmotionList: (emotions: string[]) => void
     setIsLoading: (loading: boolean) => void
+    setIsTerminating: (terminating: boolean) => void
 }
 
 const StepContext = createContext<StepContextType>({
@@ -27,6 +29,7 @@ const StepContext = createContext<StepContextType>({
     sid: '',
     emotionList: [],
     isLoading: false,
+    isTerminating: false,
     setCurrentStep: () => {
     },
     setTotalSteps: () => {
@@ -40,6 +43,8 @@ const StepContext = createContext<StepContextType>({
     setEmotionList: () => {
     },
     setIsLoading: () => {
+    },
+    setIsTerminating: () => {
     }
 })
 
@@ -51,9 +56,10 @@ export const StepProvider = ({ children }: { children: ReactNode }) => {
     const [sid, setSid] = useState('')
     const [emotionList, setEmotionList] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
+    const [isTerminating, setIsTerminating] = useState(false)
     
     return (
-        <StepContext.Provider value={{ currentStep, currentGoal, totalSteps, chat, sid, emotionList, isLoading, setCurrentStep, setTotalSteps, setCurrentGoal, setChat, setSid, setEmotionList, setIsLoading }}>
+        <StepContext.Provider value={{ currentStep, currentGoal, totalSteps, chat, sid, emotionList, isLoading, isTerminating, setCurrentStep, setTotalSteps, setCurrentGoal, setChat, setSid, setEmotionList, setIsLoading, setIsTerminating }}>
             {children}
         </StepContext.Provider>
     )

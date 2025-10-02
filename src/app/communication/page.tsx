@@ -15,6 +15,7 @@ import { handleUnload } from '@/libs/utils/handle-reload'
 import { useAtomValue } from 'jotai'
 import { isTextAreaFocusedAtom } from '@/components/view/communication/footer-input-send'
 import { useAccount } from '@/components/layout/account-context-provider'
+import { Dialog } from '@/components/dialog'
 
 
 const CommunicationStep = [
@@ -24,7 +25,7 @@ const CommunicationStep = [
 ]
 
 const CommunicationPage = () => {
-    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep, chat, setChat, sid, setSid, emotionList, setEmotionList, isLoading, setIsLoading, currentGoal } = useCommunicationStep()
+    const { setTotalSteps, setCurrentStep, setCurrentGoal, currentStep, chat, setChat, sid, setSid, emotionList, setEmotionList, isLoading, setIsLoading, currentGoal, isTerminating } = useCommunicationStep()
     
     const [showChat, setShowChat] = useState(false)
     const [userChatCount, setUserChatCount] = useState(0)
@@ -287,6 +288,7 @@ const CommunicationPage = () => {
                 backButtonText='아닌 것 같아'
                 disabled={isLoading || (currentStep === 2 && isEmpty(emotionList))}
             />
+            <Dialog.Loading open={(isLoading && currentStep === 2) || isTerminating}/>
         </div>
     )
 }

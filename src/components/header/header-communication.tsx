@@ -12,7 +12,7 @@ import { useAccount } from '@/components/layout/account-context-provider'
 
 export const HeaderCommunication = () => {
     
-    const { currentStep, totalSteps, chat, sid, emotionList, isLoading, setIsLoading } = useCommunicationStep()
+    const { currentStep, totalSteps, chat, sid, emotionList, isLoading, setIsLoading, isTerminating, setIsTerminating } = useCommunicationStep()
     const pathname = usePathname()
     
     const { back } = useDirectionalRouter()
@@ -35,7 +35,8 @@ export const HeaderCommunication = () => {
                 <Button.Communication
                     className='!w-fit !h-7 !text-12-regular px-1'
                     onClick={async () => {
-                        if (isLoading) return
+                        if (isLoading || isTerminating) return
+                        setIsTerminating(true)
                         setIsLoading(true)
                         const response = await createEmpathy({
                             uid: account?.uid ?? '',
@@ -48,9 +49,10 @@ export const HeaderCommunication = () => {
                         if (response) {
                             back()
                         }
+                        setIsTerminating(false)
                         setIsLoading(false)
                     }}
-                    disabled={isLoading}
+                    disabled={isLoading || isTerminating}
                 >
                     종료하기
                 </Button.Communication>
