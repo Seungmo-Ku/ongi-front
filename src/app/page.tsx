@@ -1,7 +1,7 @@
 'use client'
 
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Character from '@/components/character'
 import clsx from 'clsx'
 import { useRewindStep } from '@/components/layout/rewind-step-provider'
@@ -11,17 +11,21 @@ import { Dialog } from '@/components/dialog'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useAccountDocument } from '@/hooks/use-account-document'
 import { getAuth } from '@firebase/auth'
+import { useGetEmpathy } from '@/hooks/use-get-empathy'
 
 
 export default function Home() {
     const { push } = useDirectionalRouter()
     const { setStep, setWeek } = useRewindStep()
     const { setChat, setEmotionList, setTotalSteps } = useCommunicationStep()
+    const { getEmpathyByDate, enableRewind } = useGetEmpathy()
     
     const { account, user, setUser } = useAccount()
     const { updateUserAccount } = useAccountDocument()
     
     const [dialogOpen, setDialogOpen] = useState(false)
+    const [hasTodayEmpathy, setHasTodayEmpathy] = useState<boolean>(false)
+    const [hasTodayRemind, setHasTodayRemind] = useState<boolean>(false)
     
     useEffect(() => {
         const auth = getAuth()
@@ -36,16 +40,43 @@ export default function Home() {
     
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (!account) {
-                push('/login')
-            } else {
-                if (isEmpty(account?.nickname)) {
-                    setDialogOpen(true)
-                }
+            if (account && isEmpty(account?.nickname)) {
+                setDialogOpen(true)
             }
         }, 500)
         return () => clearTimeout(timer)
     }, [account, push])
+    
+    const todayEmpathy = useCallback(async () => {
+        return await getEmpathyByDate(new Date())
+    }, [getEmpathyByDate])
+    
+    const todayRemind = useCallback(async () => {
+        return await getEmpathyByDate(new Date(), true)
+    }, [getEmpathyByDate])
+    
+    useEffect(() => {
+        if (account) {
+            todayEmpathy().then((empathy) => {
+                setHasTodayEmpathy(!!empathy)
+            })
+        }
+    }, [account, todayEmpathy])
+    
+    useEffect(() => {
+        if (account) {
+            todayRemind().then((remind) => {
+                setHasTodayRemind(!!remind)
+            })
+        }
+    }, [account, todayRemind])
+    
+    const disableRewindButton = useMemo(() => {
+        console.log('hasTodayRemind', hasTodayRemind, 'enableRewind', enableRewind())
+        if (!account) return false
+        // disable: 오늘 rewind 가 있거나, rewind 하는 날이 아닐 때
+        return hasTodayRemind || !enableRewind()
+    }, [hasTodayRemind, enableRewind, account])
     
     const recordingButton = useCallback((text: string, disabled: boolean, onClick: () => void) => {
         return (
@@ -68,15 +99,23 @@ export default function Home() {
                     오늘 어떤 기록을 하고 싶어?
                 </span>
                 <div className='w-full grid-cols-2 grid gap-x-4 text-black'>
-                    {recordingButton('오늘을 기록하기', false,
+                    {recordingButton('오늘을 기록하기', hasTodayEmpathy,
                         () => {
+                            if (!account) {
+                                push('/login')
+                                return
+                            }
                             setChat([])
                             setEmotionList([])
                             push('/communication')
                         }
                     )}
-                    {recordingButton('지난 일주일 회고하기', false,
+                    {recordingButton('지난 일주일 회고하기', disableRewindButton,
                         () => {
+                            if (!account) {
+                                push('/login')
+                                return
+                            }
                             setChat([])
                             setEmotionList([])
                             setStep(0)
