@@ -72,7 +72,7 @@ export default function Home() {
     }, [account, todayRemind])
     
     const disableRewindButton = useMemo(() => {
-        console.log('hasTodayRemind', hasTodayRemind, 'enableRewind', enableRewind())
+        // console.log('hasTodayRemind', hasTodayRemind, 'enableRewind', enableRewind())
         if (!account) return false
         // disable: 오늘 rewind 가 있거나, rewind 하는 날이 아닐 때
         return hasTodayRemind || !enableRewind()
