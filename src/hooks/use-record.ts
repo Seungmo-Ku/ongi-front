@@ -1,0 +1,95 @@
+import { collection, doc, getDocs, getFirestore, query, setDoc, Timestamp, where } from '@firebase/firestore'
+import { useAccount } from '@/components/layout/account-context-provider'
+import { RecordCreateRequest, RecordQuestionRequest, RecordQuestionResponse } from '@/libs/dto/record.dto'
+import app from '../../firebaseConfig'
+import { IRecord, Record } from '@/libs/interfaces/record.interface'
+import { useCallback } from 'react'
+import axios from 'axios'
+
+
+export const useRecord = () => {
+    const firestore = getFirestore(app)
+    const { account } = useAccount()
+    const BASE_URL = process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL
+    
+    const createRecord = useCallback(async (request: RecordCreateRequest) => {
+        if (!account?.uid) return false
+        
+        const recordDocRef = doc(firestore, 'Record', `${request.uid}_${Date.now()}`)
+        try {
+            await setDoc(recordDocRef, {
+                uid: request.uid,
+                imageUrl: request.imageUrl,
+                question: request.question,
+                answer: request.answer,
+                createdAt: new Date()
+            })
+            return true
+        } catch {
+            return false
+        }
+    }, [account?.uid, firestore])
+    
+    const getMonthlyRecords = useCallback(async (date: Date) => {
+        if (!account?.uid) return {}
+        try {
+            // 1. 쿼리할 날짜 범위 계산
+            // 시작일: 해당 월의 1일 00:00:00
+            const startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+            // 종료일: 다음 달의 1일 00:00:00 (종료 범위는 exclusive)
+            const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 1)
+            
+            console.log('Fetching from:', startDate)
+            console.log('Fetching until:', endDate)
+            
+            // 2. Firestore 쿼리 생성
+            const recordsRef = collection(firestore, 'Record')
+            const q = query(
+                recordsRef,
+                where('uid', '==', account.uid), // **중요**: 현재 로그인한 유저의 데이터만!
+                where('createdAt', '>=', Timestamp.fromDate(startDate)),
+                where('createdAt', '<', Timestamp.fromDate(endDate))
+            )
+            
+            // 3. 쿼리 실행 및 데이터 가공
+            const querySnapshot = await getDocs(q)
+            const recordsMap: { [day: number]: Record } = {}
+            querySnapshot.forEach((doc) => {
+                const data = doc.data()
+                
+                const recordData: IRecord = {
+                    uid: data.uid,
+                    imageUrl: data.imageUrl,
+                    question: data.question,
+                    answer: data.answer,
+                    createdAt: data.createdAt.toDate(),
+                    id: doc.id
+                }
+                const recordDate = data.createdAt.toDate()
+                const dayOfMonth = recordDate.getDate() // 날짜(일)를 키로 사용
+                recordsMap[dayOfMonth] = new Record(recordData)
+            })
+            
+            return recordsMap
+            
+        } catch {
+            return {}
+        }
+    }, [account?.uid, firestore])
+    
+    const getQuestion = useCallback(async (Request: RecordQuestionRequest) => {
+        if (!BASE_URL) return null
+        try {
+            const response = await axios.post(`${BASE_URL}/question`, Request)
+            if (response.status === 200) {
+                return response.data as RecordQuestionResponse
+            } else {
+                return null
+            }
+        } catch {
+            return null
+        }
+    }, [BASE_URL])
+    
+    return { createRecord, getMonthlyRecords, getQuestion }
+}

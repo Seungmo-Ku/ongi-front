@@ -23,8 +23,6 @@ export const useAccountDocument = () => {
             await setDoc(accountDocRef, {
                 uid: user.uid,
                 email: user.email || '',
-                displayName: user.displayName || '',
-                photoURL: user.photoURL || '',
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 exp: 0,
@@ -33,8 +31,6 @@ export const useAccountDocument = () => {
             setAccount(new Account({
                 uid: user.uid,
                 email: user.email || '',
-                displayName: user.displayName || '',
-                photoURL: user.photoURL || '',
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 exp: 0,
@@ -47,8 +43,6 @@ export const useAccountDocument = () => {
         setAccount(new Account({
             uid: accountData.uid,
             email: accountData.email,
-            displayName: accountData.displayName,
-            photoURL: accountData.photoURL,
             createdAt: new Date(accountData.createdAt.toDate()),
             updatedAt: new Date(accountData.updatedAt.toDate()),
             exp: accountData.exp || 0,
@@ -73,8 +67,6 @@ export const useAccountDocument = () => {
             setAccount(new Account({
                 uid: accountData.uid,
                 email: accountData.email,
-                displayName: accountData.displayName,
-                photoURL: accountData.photoURL,
                 createdAt: new Date(accountData.createdAt.toDate()),
                 updatedAt: new Date(accountData.updatedAt.toDate()),
                 exp: accountData.exp || 0,
