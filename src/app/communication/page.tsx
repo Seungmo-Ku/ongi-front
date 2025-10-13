@@ -135,11 +135,14 @@ const CommunicationPage = () => {
             } else if (currentStep === 2) {
                 if (isEmpty(emotionList)) return
                 setIsLoading(true)
-                const response = await getCommunicationStep2({
-                    uid: account?.uid ?? '',
-                    sid,
-                    emotion: emotionList.join(', ')
-                })
+                let response = null
+                while (!response) {
+                    response = await getCommunicationStep2({
+                        uid: account?.uid ?? '',
+                        sid,
+                        emotion: emotionList.join(', ')
+                    })
+                }
                 if (response) {
                     setStep3StartText(response.chats)
                     goToNextStep()
@@ -163,17 +166,20 @@ const CommunicationPage = () => {
                 setTimeout(() => {
                     setShowTyping(true)
                 }, 200)
-                const response = currentStep === 1 ?
-                                 await getCommunicationStep1({
-                                     uid: account?.uid ?? '',
-                                     sid,
-                                     message: lastUserChats.join('\n')
-                                 }) :
-                                 await getCommunicationStep3({
-                                     uid: account?.uid ?? '',
-                                     sid,
-                                     message: lastUserChats.join('\n')
-                                 })
+                let response = null
+                while (!response) {
+                    response = currentStep === 1 ?
+                               await getCommunicationStep1({
+                                   uid: account?.uid ?? '',
+                                   sid,
+                                   message: lastUserChats.join('\n')
+                               }) :
+                               await getCommunicationStep3({
+                                   uid: account?.uid ?? '',
+                                   sid,
+                                   message: lastUserChats.join('\n')
+                               })
+                }
                 if (response) {
                     setShowTyping(false)
                     const newChats: Chat[] = response.chats.map(chat => ({

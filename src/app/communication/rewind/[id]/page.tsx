@@ -90,13 +90,15 @@ const CommunicationRewindPage = ({ params }: { params: Promise<{ id: string }> }
         setTimeout(() => {
             setShowTyping(true)
         }, 200)
-        const response =
-            await getCommunicationRewind({
+        let response = null
+        while (!response) {
+            response = await getCommunicationRewind({
                 uid: account?.uid ?? '',
                 sid,
                 message: lastUserChats.join('\n'),
                 summaryText: empathy?.reviewSummary ?? ''
             })
+        }
         if (response) {
             setShowTyping(false)
             const newChats: Chat[] = response.chats.map(chat => ({
