@@ -12,6 +12,7 @@
     "@headlessui/react": "^2.2.7",
     "@types/lodash": "^4.17.20",
     "axios": "^1.12.2",
+    "browser-image-compression": "^2.0.2",
     "firebase": "^12.3.0",
     "framer-motion": "^12.23.22",
     "jotai": "^2.15.0",

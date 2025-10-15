@@ -10,6 +10,7 @@ import { isEmpty, noop } from 'lodash'
 import { useAccountDocument } from '@/hooks/use-account-document'
 import { useRecord } from '@/hooks/use-record'
 import { Textarea } from '@headlessui/react'
+import imageCompression from 'browser-image-compression'
 
 
 export default function PhotoUploadPage() {
@@ -40,28 +41,42 @@ export default function PhotoUploadPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setUser, updateUserAccount])
     
-    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0]
         if (!selectedFile) return
         
         // 용량 체크 (5MB)
-        if (selectedFile.size > 5 * 1024 * 1024) {
+        // if (selectedFile.size > 5 * 1024 * 1024) {
+        //     setError(true)
+        //     return
+        // }
+        
+        const options = {
+            maxSizeMB: 1,          // 이미지 최대 용량 (1MB)
+            maxWidthOrHeight: 1920, // 최대 넓이 또는 높이
+            useWebWorker: true    // 웹워커 사용 (UI 블로킹 방지)
+        }
+        
+        setError(false)
+        
+        try {
+            const compressedFile = await imageCompression(selectedFile, options)
+            setFileToUpload(compressedFile) // 실제 파일 객체 저장
+            
+            // 기존 미리보기 URL 해제
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl)
+            }
+            // 새 미리보기 URL 생성
+            const newPreviewUrl = URL.createObjectURL(selectedFile)
+            setPreviewUrl(newPreviewUrl)
+            
+            e.target.value = ''
+        }catch {
             setError(true)
             return
         }
-        setError(false)
         
-        setFileToUpload(selectedFile) // 실제 파일 객체 저장
-        
-        // 기존 미리보기 URL 해제
-        if (previewUrl) {
-            URL.revokeObjectURL(previewUrl)
-        }
-        // 새 미리보기 URL 생성
-        const newPreviewUrl = URL.createObjectURL(selectedFile)
-        setPreviewUrl(newPreviewUrl)
-        
-        e.target.value = ''
     }, [previewUrl])
     
     // 업로드 버튼 클릭 시 실행될 함수
@@ -130,12 +145,10 @@ export default function PhotoUploadPage() {
         if (step === 'upload') {
             handleUpload()
             return
-        }
-        else {
+        } else {
             handleSaveRecord()
         }
     }, [account, handleSaveRecord, handleUpload, isUploading, push, step])
-    
     
     return (
         <div className='h-full w-full flex flex-col overflow-hidden items-center justify-center gap-y-5 px-3'>
