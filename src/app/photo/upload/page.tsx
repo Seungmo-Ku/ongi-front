@@ -94,7 +94,8 @@ export default function PhotoUploadPage() {
             
             const uploadTask = await uploadBytes(storageRef, fileToUpload)
             
-            const downloadURL = await getDownloadURL(uploadTask.ref)
+            // const downloadURL = await getDownloadURL(uploadTask.ref)
+            const downloadURL = `https://storage.googleapis.com/jerry-a9e31.firebasestorage.app/uploads/${account?.uid}/${fileName}`
             setImageUrl(downloadURL)
             
             const response = await getQuestion({
