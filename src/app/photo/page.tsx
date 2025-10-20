@@ -25,8 +25,6 @@ export default function PhotoPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setUser, updateUserAccount])
     
-    
-    
     return (
         <div className='h-full w-full flex flex-col overflow-hidden items-center justify-center gap-y-5 px-3'>
             <p className='text-black'>PHOTO PAGE</p>

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { getDownloadURL, ref, uploadBytes, getStorage } from '@firebase/storage'
+import { ref, uploadBytes, getStorage } from '@firebase/storage'
 import app from '../../../../firebaseConfig'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'

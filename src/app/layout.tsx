@@ -43,10 +43,9 @@ export default function RootLayout({
     return (
         <html lang='ko'>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full`}>
-        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden'
+        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden bg-gray-400'
              style={{
-                 height: 'calc(var(--vh, 1vh) * 100)',
-                 backgroundImage: `url(/images/communication_background.png)`, backgroundSize: 'cover', backgroundPosition: 'center'
+                 height: 'calc(var(--vh, 1vh) * 100)'
              }}
         >
             <DirectionProvider>
