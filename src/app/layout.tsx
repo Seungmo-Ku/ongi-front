@@ -6,6 +6,7 @@ import ClientSideWrapper from '@/components/layout/client-side-wrapper'
 import { DirectionProvider } from '@/components/layout/direction-provider'
 import { useEffect } from 'react'
 import Header from '@/components/header'
+import { Footer } from '@/components/footer/footer'
 
 
 const geistSans = Geist({
@@ -43,7 +44,7 @@ export default function RootLayout({
     return (
         <html lang='ko'>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full`}>
-        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden bg-gray-400'
+        <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden bg-white'
              style={{
                  height: 'calc(var(--vh, 1vh) * 100)'
              }}
@@ -53,7 +54,12 @@ export default function RootLayout({
                     <header className='w-full shrink-0'>
                         <Header.Main/>
                     </header>
-                    {children}
+                    <div className='w-full flex grow overflow-hidden mb-[100px]'>
+                        {children}
+                    </div>
+                    <footer className='w-full shrink-0 absolute bottom-0'>
+                        <Footer/>
+                    </footer>
                 </ClientSideWrapper>
             </DirectionProvider>
         </div>

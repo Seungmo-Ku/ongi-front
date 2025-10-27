@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { ref, uploadBytes, getStorage } from '@firebase/storage'
-import app from '../../../../firebaseConfig'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { getAuth } from '@firebase/auth'
@@ -11,9 +10,12 @@ import { useAccountDocument } from '@/hooks/use-account-document'
 import { useRecord } from '@/hooks/use-record'
 import { Textarea } from '@headlessui/react'
 import imageCompression from 'browser-image-compression'
+import { Plus } from 'lucide-react'
+import app from '../../../../firebaseConfig'
+import { useCurrentDate } from '@/components/layout/current-date-provider'
 
 
-export default function PhotoUploadPage() {
+export default function RecordUploadPage() {
     
     const { account, user, setUser } = useAccount()
     const { push } = useDirectionalRouter()
@@ -29,6 +31,7 @@ export default function PhotoUploadPage() {
     const [step, setStep] = useState<'upload' | 'answer'>('upload')
     
     const { createRecord, getQuestion } = useRecord()
+    const { setShowingDate, setCurrentDate } = useCurrentDate()
     
     useEffect(() => {
         const auth = getAuth()
@@ -41,50 +44,11 @@ export default function PhotoUploadPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setUser, updateUserAccount])
     
-    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0]
-        if (!selectedFile) return
-        
-        // 용량 체크 (5MB)
-        // if (selectedFile.size > 5 * 1024 * 1024) {
-        //     setError(true)
-        //     return
-        // }
-        
-        const options = {
-            maxSizeMB: 1,          // 이미지 최대 용량 (1MB)
-            maxWidthOrHeight: 1920, // 최대 넓이 또는 높이
-            useWebWorker: true    // 웹워커 사용 (UI 블로킹 방지)
-        }
-        
-        setError(false)
-        
-        try {
-            const compressedFile = await imageCompression(selectedFile, options)
-            setFileToUpload(compressedFile) // 실제 파일 객체 저장
-            
-            // 기존 미리보기 URL 해제
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl)
-            }
-            // 새 미리보기 URL 생성
-            const newPreviewUrl = URL.createObjectURL(selectedFile)
-            setPreviewUrl(newPreviewUrl)
-            
-            e.target.value = ''
-        }catch {
-            setError(true)
-            return
-        }
-        
-    }, [previewUrl])
-    
     // 업로드 버튼 클릭 시 실행될 함수
     const handleUpload = useCallback(async () => {
         if (!fileToUpload) {
             return
         }
-        
         setIsUploading(true)
         
         try {
@@ -117,6 +81,50 @@ export default function PhotoUploadPage() {
         }
     }, [account, fileToUpload, getQuestion])
     
+    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0]
+        if (!selectedFile) return
+        
+        // 용량 체크 (5MB)
+        // if (selectedFile.size > 5 * 1024 * 1024) {
+        //     setError(true)
+        //     return
+        // }
+        
+        const options = {
+            maxSizeMB: 1,          // 이미지 최대 용량 (1MB)
+            maxWidthOrHeight: 1920, // 최대 넓이 또는 높이
+            useWebWorker: true    // 웹워커 사용 (UI 블로킹 방지)
+        }
+        
+        setError(false)
+        
+        try {
+            const compressedFile = await imageCompression(selectedFile, options)
+            setFileToUpload(compressedFile) // 실제 파일 객체 저장
+            
+            // 기존 미리보기 URL 해제
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl)
+            }
+            // 새 미리보기 URL 생성
+            const newPreviewUrl = URL.createObjectURL(selectedFile)
+            setPreviewUrl(newPreviewUrl)
+            
+            e.target.value = ''
+        } catch {
+            setError(true)
+            return
+        }
+        
+    }, [previewUrl])
+    
+    useEffect(() => {
+        if (isEmpty(question) && fileToUpload && !isUploading) {
+            handleUpload()
+        }
+    }, [fileToUpload, handleUpload, isUploading, question])
+    
     const handleSaveRecord = useCallback(async () => {
         if (isEmpty(answer)) return
         setIsUploading(true)
@@ -128,7 +136,9 @@ export default function PhotoUploadPage() {
                 answer: answer
             })
             if (response) {
-                push('/photo/calendar')
+                setShowingDate(new Date())
+                setCurrentDate(new Date())
+                push('/calendar')
                 return
             }
         } catch {
@@ -136,43 +146,63 @@ export default function PhotoUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, createRecord, imageUrl, push, question])
+    }, [account?.uid, answer, createRecord, imageUrl, push, question, setCurrentDate, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
-        if (!account || isUploading) {
-            push('/login')
-            return
-        }
         if (step === 'upload') {
             handleUpload()
             return
         } else {
             handleSaveRecord()
         }
-    }, [account, handleSaveRecord, handleUpload, isUploading, push, step])
+    }, [handleSaveRecord, handleUpload, step])
     
     return (
-        <div className='h-full w-full flex flex-col overflow-hidden items-center justify-center gap-y-5 px-3'>
-            {
-                // eslint-disable-next-line @next/next/no-img-element
-                previewUrl ? <img src={previewUrl} alt='upload preview' className='max-h-96 max-w-full object-contain'/> : <div className='h-96 w-full bg-gray-200 flex items-center justify-center'>이미지를 선택하세요</div>
-            }
+        <div className='h-full w-full flex flex-col overflow-y-scroll items-center justify-start gap-y-7 px-5'>
+            <div
+                className='w-full aspect-square shrink-0 rounded-[15px]'
+                onClick={(e) => {
+                    if (!isEmpty(question)) {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        return
+                    }
+                    if (!account || isUploading) {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        push('/login')
+                        return
+                    }
+                }}
+            >
+                {
+                    previewUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={previewUrl} alt='upload preview' className='w-full aspect-square shrink-0 object-contain rounded-[15px]'/>
+                    ) : (
+                        <label htmlFor='proof-shot-select' className='w-full aspect-square shrink-0 bg-[#EFEFEF] flex flex-col gap-y-7 items-center justify-center rounded-[15px]'>
+                            <div className='w-[30px] h-[30px] shrink-0 rounded-full bg-[#35618E] flex items-center justify-center'>
+                                <Plus className='text-white size-4 shrink-0'/>
+                            </div>
+                            <p className='text-16-medium text-[#888]'>
+                                하루 한장의 사진으로 당신을 알아보세요
+                            </p>
+                        </label>
+                    )
+                }
+            </div>
             
             {
-                step === 'upload' ? (
-                    <div className='flex flex-col items-center gap-y-2'>
-                        <label htmlFor='proof-shot-select' className='cursor-pointer p-3 bg-black rounded-md'>
-                            <div className='text-16-semibold'>이미지 선택</div>
-                        </label>
-                        {error && <div className='text-14-medium text-red-500'>5MB 이하의 이미지를 업로드 해 주세요</div>}
-                    </div>
-                ) : (
+                step === 'answer' && (
                     <div className='flex flex-col items-center gap-y-2 w-full'>
-                        <p className='text-black'>
-                            질문: {question}
+                        <p className='text-black text-14-regular gap-x-1'>
+                            <span className='text-14-bold mr-1'>
+                                Q
+                            </span>
+                            {question}
                         </p>
                         <Textarea
-                            className='w-full bg-black text-white'
+                            className='w-full bg-white text-black'
                             placeholder={'답변을 입력해주세요'}
                             value={answer}
                             onChange={(e) => setAnswer(e.target.value)}
@@ -180,8 +210,6 @@ export default function PhotoUploadPage() {
                     </div>
                 )
             }
-            
-            
             <input
                 className='hidden'
                 id='proof-shot-select'

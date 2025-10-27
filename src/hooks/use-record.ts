@@ -39,9 +39,6 @@ export const useRecord = () => {
             // 종료일: 다음 달의 1일 00:00:00 (종료 범위는 exclusive)
             const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 1)
             
-            console.log('Fetching from:', startDate)
-            console.log('Fetching until:', endDate)
-            
             // 2. Firestore 쿼리 생성
             const recordsRef = collection(firestore, 'Record')
             const q = query(
@@ -77,6 +74,97 @@ export const useRecord = () => {
         }
     }, [account?.uid, firestore])
     
+    const getWeeklyRecords = useCallback(async (date: Date) => {
+        if (!account?.uid) return {}
+        try {
+            // 1. 쿼리할 날짜 범위 계산
+            // (수정됨) date.getDate() - date.getDay()를 사용해 해당 주의 일요일 날짜를 계산합니다.
+            const startDate = new Date(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate() - date.getDay()
+            )
+            const endDate = new Date(
+                startDate.getFullYear(),
+                startDate.getMonth(),
+                startDate.getDate() + 7
+            )
+            
+            // 2. Firestore 쿼리 생성
+            const recordsRef = collection(firestore, 'Record')
+            const q = query(
+                recordsRef,
+                where('uid', '==', account.uid),
+                where('createdAt', '>=', Timestamp.fromDate(startDate)),
+                where('createdAt', '<', Timestamp.fromDate(endDate))
+            )
+            
+            const querySnapshot = await getDocs(q)
+            
+            // 3. (수정됨) recordsMap의 키를 요일(0~6)로 사용
+            const recordsMap: { [day: number]: Record } = {}
+            
+            querySnapshot.forEach((doc) => {
+                const data = doc.data()
+                
+                const recordData: IRecord = {
+                    uid: data.uid,
+                    imageUrl: data.imageUrl,
+                    question: data.question,
+                    answer: data.answer,
+                    createdAt: data.createdAt.toDate(),
+                    id: doc.id
+                }
+                
+                const recordDate = data.createdAt.toDate()
+                
+                // (수정됨) getDate() 대신 getDay()를 사용해 요일 인덱스(0=일, 6=토)를 가져옵니다.
+                const dayOfWeek = recordDate.getDay()
+                
+                // (수정됨) 요일을 키로 사용하여 맵에 저장
+                recordsMap[dayOfWeek] = new Record(recordData)
+            })
+            
+            return recordsMap // 예: { 0: Record, 2: Record, 5: Record }
+            
+        } catch (error) { // 에러 핸들링 추가
+            console.error('Error fetching weekly records: ', error)
+            return {}
+        }
+    }, [account?.uid, firestore])
+    
+    const getTodayRecord = useCallback(async (date: Date) => {
+        if (!account?.uid) return null
+        try {
+            const recordsRef = collection(firestore, 'Record')
+            const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+            const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+            const q = query(
+                recordsRef,
+                where('uid', '==', account.uid),
+                where('createdAt', '>=', Timestamp.fromDate(startOfDay)),
+                where('createdAt', '<', Timestamp.fromDate(endOfDay))
+            )
+            const querySnapshot = await getDocs(q)
+            if (querySnapshot.empty) {
+                return null
+            }
+            const doc = querySnapshot.docs[0]
+            const data = doc.data()
+            const recordData: IRecord = {
+                uid: data.uid,
+                imageUrl: data.imageUrl,
+                question: data.question,
+                answer: data.answer,
+                createdAt: data.createdAt.toDate(),
+                id: doc.id
+            }
+            return new Record(recordData)
+        } catch {
+            return null
+        }
+    }, [account?.uid, firestore])
+    
     const getQuestion = useCallback(async (Request: RecordQuestionRequest) => {
         if (!BASE_URL) return null
         try {
@@ -91,5 +179,5 @@ export const useRecord = () => {
         }
     }, [BASE_URL])
     
-    return { createRecord, getMonthlyRecords, getQuestion }
+    return { createRecord, getMonthlyRecords, getWeeklyRecords, getQuestion, getTodayRecord }
 }

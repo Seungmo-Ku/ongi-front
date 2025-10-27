@@ -1,8 +1,7 @@
 'use client'
 
 import { createContext, ReactNode, useContext, useState } from 'react'
-import { StepProvider } from '@/components/layout/communication-step-provider'
-import { RewindStepProvider } from '@/components/layout/rewind-step-provider'
+import { CurrentDateProvider } from '@/components/layout/current-date-provider'
 import { AccountProvider } from '@/components/layout/account-context-provider'
 
 
@@ -25,11 +24,9 @@ const DirectionProvider = ({ children }: { children: ReactNode }) => {
     return (
         <DirectionContext.Provider value={{ direction, setDirection }}>
             <AccountProvider>
-                <StepProvider>
-                    <RewindStepProvider>
-                        {children}
-                    </RewindStepProvider>
-                </StepProvider>
+                <CurrentDateProvider>
+                    {children}
+                </CurrentDateProvider>
             </AccountProvider>
         </DirectionContext.Provider>
     )
