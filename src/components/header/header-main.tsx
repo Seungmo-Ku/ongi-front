@@ -18,6 +18,8 @@ export const HeaderMain = () => {
         setCurrentDate(new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + (amount * 7)))
     }
     
+    if(pathname.startsWith('/login')) return null
+    
     return (
         <div className='w-full h-14 shrink-0 p-4 flex justify-between text-16-bold text-[#121212]'>
             <p>

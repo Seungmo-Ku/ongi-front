@@ -49,6 +49,8 @@ export const Footer = () => {
         )
     }, [selected])
     
+    if (pathname.startsWith('/login')) return null
+    
     return (
         <div className='w-full shrink-0 pt-4 pb-8 px-4 grid grid-cols-3 items-center justify-center text-white z-[1] bg-white'>
             {footerButtonComponent('기록', 0, () => push('/record'))}

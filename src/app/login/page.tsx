@@ -91,7 +91,7 @@ const LoginPage = () => {
     }
     
     return (
-        <div className='w-full h-full flex flex-col items-center justify-center bg-blue-200 p-5'>
+        <div className='w-full h-full flex flex-col items-center justify-center p-5'>
             <div className='w-full max-w-sm space-y-8'>
                 <div>
                     <p className='text-ongi-my-communication text-48-bold text-center'>MoodTracker</p>
