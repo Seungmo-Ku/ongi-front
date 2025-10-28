@@ -43,6 +43,13 @@ export default function RootLayout({
     
     return (
         <html lang='ko'>
+        <head>
+            <meta
+                name='viewport'
+                content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+            />
+            <title>Ongi</title>
+        </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full`}>
         <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden bg-white'
              style={{
