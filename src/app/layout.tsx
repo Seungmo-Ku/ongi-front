@@ -1,13 +1,22 @@
-'use client'
-
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import ClientSideWrapper from '@/components/layout/client-side-wrapper'
 import { DirectionProvider } from '@/components/layout/direction-provider'
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import Header from '@/components/header'
 import { Footer } from '@/components/footer/footer'
+import { Metadata, Viewport } from 'next'
 
+export const metadata: Metadata = {
+    title: 'Ongi',
+}
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+}
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -25,31 +34,24 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     
-    useEffect(() => {
-        const isInWebView =
-            navigator.userAgent.includes('wv') || // 안드로이드 WebView
-            window.navigator.userAgent.includes('WebView') // iOS WebView
-        if (!isInWebView) {
-            function setViewportHeight() {
-                const vh = window.innerHeight * 0.01
-                document.documentElement.style.setProperty('--vh', `${vh}px`)
-            }
-            
-            window.addEventListener('resize', setViewportHeight)
-            setViewportHeight()
-            return () => window.removeEventListener('resize', setViewportHeight)
-        }
-    }, [])
+    // useEffect(() => {
+    //     const isInWebView =
+    //         navigator.userAgent.includes('wv') || // 안드로이드 WebView
+    //         window.navigator.userAgent.includes('WebView') // iOS WebView
+    //     if (!isInWebView) {
+    //         function setViewportHeight() {
+    //             const vh = window.innerHeight * 0.01
+    //             document.documentElement.style.setProperty('--vh', `${vh}px`)
+    //         }
+    //
+    //         window.addEventListener('resize', setViewportHeight)
+    //         setViewportHeight()
+    //         return () => window.removeEventListener('resize', setViewportHeight)
+    //     }
+    // }, [])
     
     return (
         <html lang='ko'>
-        <head>
-            <meta
-                name='viewport'
-                content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
-            />
-            <title>Ongi</title>
-        </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full`}>
         <div className='max-w-xl max-h-[1200px] mx-auto overflow-hidden bg-white'
              style={{
