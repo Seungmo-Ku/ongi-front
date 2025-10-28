@@ -105,7 +105,7 @@ export default function PhotoCalendarPage() {
                     }}
                 >
                     <div className='absolute w-full h-full z-[1] bg-black/30'/>
-                    <img src={recordForDay.imageUrl} alt='imageUrl' className='w-full h-full opacity-60'/>
+                    <img src={recordForDay.imageUrl} alt='imageUrl' className='w-full h-full opacity-60 object-cover'/>
                     <p className='absolute text-white z-[2] text-16-bold bottom-2.5 left-2'>
                         {`${month + 1}월 ${day}일`}
                     </p>
