@@ -31,7 +31,7 @@ export const useAccountDocument = () => {
                 updatedAt: new Date(),
                 exp: 0,
                 level: 0,
-                fcmToken: fcmToken || ''
+                fcmToken: fcmToken?.toString() || ''
             })
             setAccount(new Account({
                 uid: user.uid,
@@ -40,7 +40,7 @@ export const useAccountDocument = () => {
                 updatedAt: new Date(),
                 exp: 0,
                 level: 0,
-                fcmToken: fcmToken || ''
+                fcmToken: fcmToken?.toString() || ''
             }))
             return
         }
