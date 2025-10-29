@@ -67,11 +67,11 @@ export default function RootLayout({
                             <Header.Main/>
                         </header>
                         <ClientSideWrapper>
-                            <div className='w-full flex grow overflow-hidden mb-[100px]'>
+                            <div className='w-full h-full flex overflow-hidden'>
                                 {children}
                             </div>
                         </ClientSideWrapper>
-                        <footer className='w-full shrink-0 absolute bottom-0'>
+                        <footer className='w-full shrink-0'>
                             <Footer/>
                         </footer>
                     </div>
