@@ -3,7 +3,7 @@
 // 1. InAppWebView 객체의 타입을 정의합니다.
 //    callHandler는 string 핸들러 이름과 나머지 인자들을 받고, Promise를 반환합니다.
 interface InAppWebView {
-    callHandler(handlerName: string, ...args: any[]): Promise<any>;
+    callHandler(handlerName: string, ...args: unknown[]): Promise<unknown>;
 }
 
 declare global {

@@ -47,10 +47,10 @@ export async function POST(request: Request) {
         console.log('푸시 알림 전송 성공:', response)
         return NextResponse.json({ success: true, messageId: response }, { status: 200 })
         
-    } catch (error: any) {
-        console.error('푸시 알림 전송 실패:', error)
+    } catch {
+        console.error('푸시 알림 전송 실패')
         
         // FCM이 보낸 에러 코드(예: 'messaging/invalid-token')를 반환
-        return NextResponse.json({ success: false, error: error.code || error.message }, { status: 500 })
+        return NextResponse.json({ success: false }, { status: 500 })
     }
 }
