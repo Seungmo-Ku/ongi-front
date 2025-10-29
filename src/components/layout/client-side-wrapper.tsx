@@ -32,6 +32,7 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
                 animate='animate'
                 transition={{ duration: 0.3 }}
                 className='w-full grow overflow-hidden opacity-0'
+                style={{ transform: 'translateZ(0)' }}
             >
                 <div className='w-full h-full flex flex-col items-center overflow-hidden relative'>
                     {children}
