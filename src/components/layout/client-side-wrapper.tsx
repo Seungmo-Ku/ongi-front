@@ -8,11 +8,19 @@ import { useDirection } from '@/components/layout/direction-provider'
 
 const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname()
-    const { direction } = useDirection()
+    const { direction, pastPath } = useDirection()
     
     const variants = {
         initial: { opacity: 0, x: direction === 'forward' ? 100 : -100 },
         animate: { opacity: 1, x: 0 }
+    }
+    
+    if (pathname.startsWith('/record')) {
+        variants.initial.x = -100
+    }
+    
+    if (pathname.startsWith('/calendar') && !pastPath.startsWith('/record')) {
+        variants.initial.x = -100
     }
     
     return (

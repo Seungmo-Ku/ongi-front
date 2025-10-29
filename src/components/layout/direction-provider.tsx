@@ -10,19 +10,25 @@ type Direction = 'forward' | 'backward'
 interface DirectionContextType {
     direction: Direction
     setDirection: (dir: Direction) => void
+    pastPath: string
+    setPastPath: (path: string) => void
 }
 
 const DirectionContext = createContext<DirectionContextType>({
     direction: 'forward',
     setDirection: () => {
+    },
+    pastPath: '',
+    setPastPath: () => {
     }
 })
 
 const DirectionProvider = ({ children }: { children: ReactNode }) => {
     const [direction, setDirection] = useState<Direction>('forward')
+    const [pastPath, setPastPath] = useState<string>('')
     
     return (
-        <DirectionContext.Provider value={{ direction, setDirection }}>
+        <DirectionContext.Provider value={{ direction, setDirection, pastPath, setPastPath }}>
             <AccountProvider>
                 <CurrentDateProvider>
                     {children}

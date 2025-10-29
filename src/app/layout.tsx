@@ -62,17 +62,20 @@ export default function RootLayout({
         >
             <Providers>
                 <DirectionProvider>
-                    <ClientSideWrapper>
+                    <div className='w-full h-full flex flex-col items-center overflow-hidden relative'>
                         <header className='w-full shrink-0'>
                             <Header.Main/>
                         </header>
-                        <div className='w-full flex grow overflow-hidden mb-[100px]'>
-                            {children}
-                        </div>
+                        <ClientSideWrapper>
+                            <div className='w-full flex grow overflow-hidden mb-[100px]'>
+                                {children}
+                            </div>
+                        </ClientSideWrapper>
                         <footer className='w-full shrink-0 absolute bottom-0'>
                             <Footer/>
                         </footer>
-                    </ClientSideWrapper>
+                    </div>
+                
                 </DirectionProvider>
             </Providers>
         </div>

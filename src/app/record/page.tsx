@@ -107,7 +107,7 @@ export default function RecordPage() {
                 isLoading ? (
                     <div className='w-full flex flex-col items-center justify-center gap-y-7'>
                         <div
-                            className='w-full aspect-square shrink-0 object-contain rounded-[15px] bg-gray-400 animate-pulse'
+                            className='w-full aspect-square shrink-0 object-contain rounded-[15px] bg-[#EFEFEF] animate-pulse'
                         />
                     </div>
                 ) : (
