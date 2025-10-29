@@ -1,9 +1,7 @@
 'use client'
 
 import RecordUploadPage from '@/app/record/upload/page'
-import { useRecord } from '@/hooks/use-record'
-import React, { useEffect, useState } from 'react'
-import { Record } from '@/libs/interfaces/record.interface'
+import React, { useEffect, useMemo } from 'react'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
 import Button from '@/components/button'
@@ -11,21 +9,19 @@ import clsx from 'clsx'
 import { getAuth } from '@firebase/auth'
 import { noop } from 'lodash'
 import { useAccountDocument } from '@/hooks/use-account-document'
+import { useGetTodayRecordQuery, useGetWeeklyRecordsQuery } from '@/hooks/use-react-query'
 
 
 export default function RecordPage() {
-    const { account, user, setUser } = useAccount()
+    const { user, setUser } = useAccount()
     const { updateUserAccount } = useAccountDocument()
-    const { getTodayRecord, getWeeklyRecords } = useRecord()
-    
-    const [todayRecord, setTodayRecord] = useState<Record | null | undefined>(undefined)
-    const [weeklyRecord, setWeeklyRecord] = useState<{ [day: number]: Record }>({})
-    const [isLoading, setIsLoading] = useState(false)
-    const [isWeeklyLoading, setIsWeeklyLoading] = useState(false)
     
     const { currentDate, showingDate, setShowingDate } = useCurrentDate()
     
     const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
+    
+    const { data: weeklyRecord } = useGetWeeklyRecordsQuery(currentDate)
+    const { data: todayRecord, isLoading } = useGetTodayRecordQuery(showingDate)
     
     useEffect(() => {
         const auth = getAuth()
@@ -37,32 +33,6 @@ export default function RecordPage() {
         return () => unsubscribe()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setUser, updateUserAccount])
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true)
-            const record = await getTodayRecord(showingDate)
-            setTodayRecord(record)
-            setIsLoading(false)
-        }
-        
-        if (account) { // account 정보가 있을 때만 실행
-            fetchData()
-        }
-    }, [account, currentDate, getTodayRecord, showingDate]) // currentDate나 account가 바뀌면 재실행
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsWeeklyLoading(true)
-            const records = await getWeeklyRecords(currentDate)
-            setWeeklyRecord(records)
-            setIsWeeklyLoading(false)
-        }
-        
-        if (account) { // account 정보가 있을 때만 실행
-            fetchData()
-        }
-    }, [account, currentDate, getWeeklyRecords, showingDate]) // currentDate나 account가 바뀌면 재실행
     
     const getDateForWeekIndex = (index: number) => {
         // 기준 날짜가 속한 주의 "일요일"에 해당하는 날짜 숫자를 계산
@@ -76,12 +46,37 @@ export default function RecordPage() {
         ) // e.g., Date 객체 (2025-11-01)
     }
     
+    const showingDayComponent = useMemo(() => {
+        if (!todayRecord) return null
+        return (
+            <div className='w-full flex flex-col items-center justify-center gap-y-7'>
+                <img
+                    src={todayRecord.imageUrl}
+                    alt={`image-${showingDate.toLocaleDateString()}`}
+                    className='w-full aspect-square shrink-0 object-contain rounded-[15px]'
+                />
+                <p className='text-black text-14-regular gap-x-1'>
+                    <span className='text-14-bold mr-1'>
+                        Q
+                    </span>
+                    {todayRecord.question}
+                </p>
+                <p className='text-black text-14-regular gap-x-1'>
+                    <span className='text-14-bold mr-1'>
+                        A
+                    </span>
+                    {todayRecord.answer}
+                </p>
+            </div>
+        )
+    }, [showingDate, todayRecord])
+    
     return (
         <div className='w-full h-full flex flex-col items-center justify-start gap-y-5 overflow-y-scroll px-5'>
             <div className='w-full grid grid-cols-7 gap-x-2.5'>
                 {
                     DAY_NAMES.map((name, index) => {
-                        const record = weeklyRecord[index]
+                        const record = weeklyRecord?.[index] ?? null
                         const dateForButton = getDateForWeekIndex(index)
                         const dayNumber = dateForButton.getDate()
                         const isSelected = dateForButton.toDateString() === showingDate.toDateString()
@@ -109,34 +104,14 @@ export default function RecordPage() {
             </div>
             <p className='text-16-bold text-black text-left self-start'>하루 한장 기록</p>
             {
-                (isLoading || isWeeklyLoading) ? (
+                isLoading ? (
                     <div className='w-full flex flex-col items-center justify-center gap-y-7'>
                         <div
                             className='w-full aspect-square shrink-0 object-contain rounded-[15px] bg-gray-400 animate-pulse'
                         />
                     </div>
                 ) : (
-                    !todayRecord ? <RecordUploadPage/> : (
-                        <div className='w-full flex flex-col items-center justify-center gap-y-7'>
-                            <img
-                                src={todayRecord.imageUrl}
-                                alt={`image-${currentDate.toLocaleDateString()}`}
-                                className='w-full aspect-square shrink-0 object-contain rounded-[15px]'
-                            />
-                            <p className='text-black text-14-regular gap-x-1'>
-                                <span className='text-14-bold mr-1'>
-                                    Q
-                                </span>
-                                {todayRecord.question}
-                            </p>
-                            <p className='text-black text-14-regular gap-x-1 self-start'>
-                                <span className='text-14-bold mr-1'>
-                                    A
-                                </span>
-                                {todayRecord.answer}
-                            </p>
-                        </div>
-                    )
+                    !todayRecord ? <RecordUploadPage/> : (showingDayComponent)
                 )
             }
         </div>

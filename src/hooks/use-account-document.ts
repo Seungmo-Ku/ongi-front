@@ -19,6 +19,10 @@ export const useAccountDocument = () => {
         const accountDocRef = doc(firestore, 'Accounts', user.uid)
         const docSnap = await getDoc(accountDocRef)
         
+        let fcmToken
+        if (window.flutter_inappwebview) {
+            fcmToken = await window.flutter_inappwebview.callHandler('requestFcmToken')
+        }
         if (!docSnap.exists()) {
             await setDoc(accountDocRef, {
                 uid: user.uid,
@@ -26,7 +30,8 @@ export const useAccountDocument = () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 exp: 0,
-                level: 0
+                level: 0,
+                fcmToken: fcmToken || ''
             })
             setAccount(new Account({
                 uid: user.uid,
@@ -34,12 +39,27 @@ export const useAccountDocument = () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 exp: 0,
-                level: 0
+                level: 0,
+                fcmToken: fcmToken || ''
             }))
             return
         }
         
         const accountData = docSnap.data()
+        
+        if (fcmToken && fcmToken !== accountData.fcmToken) {
+            await setDoc(accountDocRef, {
+                uid: accountData.uid,
+                email: accountData.email,
+                createdAt: new Date(accountData.createdAt.toDate()),
+                updatedAt: new Date(accountData.updatedAt.toDate()),
+                exp: accountData.exp || 0,
+                level: accountData.level || 0,
+                nickname: accountData.nickname || '',
+                fcmToken: fcmToken
+            })
+        }
+        
         setAccount(new Account({
             uid: accountData.uid,
             email: accountData.email,
@@ -47,7 +67,8 @@ export const useAccountDocument = () => {
             updatedAt: new Date(accountData.updatedAt.toDate()),
             exp: accountData.exp || 0,
             level: accountData.level || 0,
-            nickname: accountData.nickname || ''
+            nickname: accountData.nickname || '',
+            fcmToken: fcmToken || accountData.fcmToken || ''
         }))
     }
     

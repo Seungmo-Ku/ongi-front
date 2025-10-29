@@ -1,28 +1,26 @@
 'use client'
 
 import { useAccount } from '@/components/layout/account-context-provider'
-import { useRecord } from '@/hooks/use-record'
-import { useEffect, useState } from 'react'
-import { Record } from '@/libs/interfaces/record.interface'
+import { useEffect } from 'react'
 import { getAuth } from '@firebase/auth'
 import { noop } from 'lodash'
 import { useAccountDocument } from '@/hooks/use-account-document'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
 import Button from '@/components/button'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useGetMonthlyRecordsQuery } from '@/hooks/use-react-query'
 
 
 export default function PhotoCalendarPage() {
     const { account, user, setUser } = useAccount()
-    const { getMonthlyRecords } = useRecord()
     const { updateUserAccount } = useAccountDocument()
-    const [monthlyRecords, setMonthlyRecords] = useState<{ [day: number]: Record }>({})
-    const [isLoading, setIsLoading] = useState(false)
     const { push } = useDirectionalRouter()
     
     const { currentDate, setShowingDate, setCurrentDate, calendarMode } = useCurrentDate()
     
     const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
+    
+    const { data: monthlyRecords, isLoading } = useGetMonthlyRecordsQuery(currentDate)
     
     useEffect(() => {
         const auth = getAuth()
@@ -35,21 +33,8 @@ export default function PhotoCalendarPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setUser, updateUserAccount])
     
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true)
-            // 함수를 호출하고 결과를 state에 저장합니다.
-            const records = await getMonthlyRecords(currentDate)
-            setMonthlyRecords(records)
-            setIsLoading(false)
-        }
-        
-        if (account) { // account 정보가 있을 때만 실행
-            fetchData()
-        }
-    }, [account, currentDate, getMonthlyRecords]) // currentDate나 account가 바뀌면 재실행
-    
     const renderCalendar = () => {
+        if (!monthlyRecords || isLoading) return []
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth()
         
@@ -85,6 +70,7 @@ export default function PhotoCalendarPage() {
     }
     
     const renderGrid = () => {
+        if (!monthlyRecords || isLoading) return []
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth()
         

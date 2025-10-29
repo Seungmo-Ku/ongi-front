@@ -6,6 +6,7 @@ export interface IAccount {
     exp: number
     level: number
     nickname?: string
+    fcmToken?: string
 }
 
 export class Account implements IAccount {
@@ -16,6 +17,7 @@ export class Account implements IAccount {
     exp: number
     level: number
     nickname?: string
+    fcmToken?: string
 
     constructor(account: IAccount) {
         this.uid = account.uid
@@ -25,5 +27,6 @@ export class Account implements IAccount {
         this.exp = account.exp || 0
         this.level = account.level || 0
         this.nickname = account.nickname || ''
+        this.fcmToken = account.fcmToken || ''
     }
 }

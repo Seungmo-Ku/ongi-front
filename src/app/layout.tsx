@@ -6,16 +6,18 @@ import { DirectionProvider } from '@/components/layout/direction-provider'
 import Header from '@/components/header'
 import { Footer } from '@/components/footer/footer'
 import { Metadata, Viewport } from 'next'
+import Providers from '@/app/providers'
+
 
 export const metadata: Metadata = {
-    title: 'Ongi',
+    title: 'Ongi'
 }
 
 export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 1,
-    userScalable: false,
+    userScalable: false
 }
 
 const geistSans = Geist({
@@ -58,19 +60,21 @@ export default function RootLayout({
                  height: 'calc(var(--vh, 1vh) * 100)'
              }}
         >
-            <DirectionProvider>
-                <ClientSideWrapper>
-                    <header className='w-full shrink-0'>
-                        <Header.Main/>
-                    </header>
-                    <div className='w-full flex grow overflow-hidden mb-[100px]'>
-                        {children}
-                    </div>
-                    <footer className='w-full shrink-0 absolute bottom-0'>
-                        <Footer/>
-                    </footer>
-                </ClientSideWrapper>
-            </DirectionProvider>
+            <Providers>
+                <DirectionProvider>
+                    <ClientSideWrapper>
+                        <header className='w-full shrink-0'>
+                            <Header.Main/>
+                        </header>
+                        <div className='w-full flex grow overflow-hidden mb-[100px]'>
+                            {children}
+                        </div>
+                        <footer className='w-full shrink-0 absolute bottom-0'>
+                            <Footer/>
+                        </footer>
+                    </ClientSideWrapper>
+                </DirectionProvider>
+            </Providers>
         </div>
         </body>
         </html>
