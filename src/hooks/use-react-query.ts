@@ -1,10 +1,12 @@
 'use client'
 
-import { useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useRecord } from '@/hooks/use-record'
 import { isEmpty } from 'lodash'
 import { getWeekSundayDate } from '@/libs/utils/date-calculate'
+import { RecordCreateRequest } from '@/libs/dto/record.dto'
+
 
 export const useGetMonthlyRecordsQuery = (date: Date) => {
     const { account } = useAccount()
@@ -39,5 +41,21 @@ export const useGetTodayRecordQuery = (date: Date) => {
         queryFn: () => getTodayRecord(date),
         enabled: !isEmpty(account?.uid) && !!date,
         staleTime: 1000 * 60 * 5
+    })
+}
+
+export const useCreateRecordMutation = () => {
+    const { account } = useAccount()
+    const { createRecord } = useRecord()
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: async (request: RecordCreateRequest) => await createRecord(request),
+        onSuccess: async (data) => {
+            if (!data) return
+            const date = new Date()
+            await queryClient.invalidateQueries({ queryKey: ['monthly', account?.uid, date.getFullYear(), date.getMonth()] })
+            await queryClient.invalidateQueries({ queryKey: ['weekly', account?.uid, date.getFullYear(), date.getMonth(), getWeekSundayDate(date)] })
+            await queryClient.invalidateQueries({ queryKey: ['single', account?.uid, date.getFullYear(), date.getMonth(), date.getDate()] })
+        }
     })
 }

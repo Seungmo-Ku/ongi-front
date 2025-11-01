@@ -13,6 +13,7 @@ import imageCompression from 'browser-image-compression'
 import { Plus } from 'lucide-react'
 import app from '../../../../firebaseConfig'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
+import { useCreateRecordMutation } from '@/hooks/use-react-query'
 
 
 export default function RecordUploadPage() {
@@ -30,8 +31,9 @@ export default function RecordUploadPage() {
     const [imageUrl, setImageUrl] = useState<string>('')
     const [step, setStep] = useState<'upload' | 'answer'>('upload')
     
-    const { createRecord, getQuestion } = useRecord()
+    const { getQuestion } = useRecord()
     const { setShowingDate, setCurrentDate } = useCurrentDate()
+    const { mutateAsync } = useCreateRecordMutation()
     
     useEffect(() => {
         const auth = getAuth()
@@ -129,7 +131,7 @@ export default function RecordUploadPage() {
         if (isEmpty(answer)) return
         setIsUploading(true)
         try {
-            const response = await createRecord({
+            const response = await mutateAsync({
                 uid: account?.uid || '',
                 imageUrl: imageUrl,
                 question: question,
@@ -138,7 +140,7 @@ export default function RecordUploadPage() {
             if (response) {
                 setShowingDate(new Date())
                 setCurrentDate(new Date())
-                push('/calendar')
+                // push('/calendar')
                 return
             }
         } catch {
@@ -146,7 +148,7 @@ export default function RecordUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, createRecord, imageUrl, push, question, setCurrentDate, setShowingDate])
+    }, [account?.uid, answer, imageUrl, mutateAsync, push, question, setCurrentDate, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {
