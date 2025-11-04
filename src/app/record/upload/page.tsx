@@ -13,7 +13,10 @@ import imageCompression from 'browser-image-compression'
 import { Plus } from 'lucide-react'
 import app from '../../../../firebaseConfig'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
-import { useCreateRecordMutation } from '@/hooks/use-react-query'
+import { useCreateRecordMutation, useGetLastRecordsQuery } from '@/hooks/use-react-query'
+import { useSetAtom } from 'jotai'
+import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
+import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
 
 
 export default function RecordUploadPage() {
@@ -30,6 +33,25 @@ export default function RecordUploadPage() {
     const [answer, setAnswer] = useState<string>('')
     const [imageUrl, setImageUrl] = useState<string>('')
     const [step, setStep] = useState<'upload' | 'answer'>('upload')
+    
+    const { data } = useGetLastRecordsQuery()
+    
+    const setLoadingShow = useSetAtom(SpinnerViewAtom)
+    const setSevenDays = useSetAtom(DialogSevenDaysAtom)
+
+    useEffect(() => {
+        return () => {
+            setIsUploading(false)
+        }
+    }, [setSevenDays])
+    
+    useEffect(() => {
+        if (isUploading) {
+            setLoadingShow({ show: true })
+        } else {
+            setLoadingShow({ show: false })
+        }
+    }, [isUploading, setLoadingShow])
     
     const { getQuestion } = useRecord()
     const { setShowingDate, setCurrentDate } = useCurrentDate()
@@ -87,12 +109,6 @@ export default function RecordUploadPage() {
         const selectedFile = e.target.files?.[0]
         if (!selectedFile) return
         
-        // 용량 체크 (5MB)
-        // if (selectedFile.size > 5 * 1024 * 1024) {
-        //     setError(true)
-        //     return
-        // }
-        
         const options = {
             maxSizeMB: 1,          // 이미지 최대 용량 (1MB)
             maxWidthOrHeight: 1920, // 최대 넓이 또는 높이
@@ -130,6 +146,9 @@ export default function RecordUploadPage() {
     const handleSaveRecord = useCallback(async () => {
         if (isEmpty(answer)) return
         setIsUploading(true)
+        
+        const count = data?.count || -1
+        
         try {
             const response = await mutateAsync({
                 uid: account?.uid || '',
@@ -140,7 +159,14 @@ export default function RecordUploadPage() {
             if (response) {
                 setShowingDate(new Date())
                 setCurrentDate(new Date())
-                // push('/calendar')
+                setIsUploading(false)
+                if (count === 6) {
+                    // 7일째 기록 작성 완료
+                    // TODO. gpt 호출해서 배지 만들기 api 호출
+                    setSevenDays({
+                        open: true
+                    })
+                }
                 return
             }
         } catch {
@@ -148,7 +174,7 @@ export default function RecordUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, imageUrl, mutateAsync, push, question, setCurrentDate, setShowingDate])
+    }, [account?.uid, answer, data?.count, imageUrl, mutateAsync, question, setCurrentDate, setSevenDays, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {
@@ -221,13 +247,17 @@ export default function RecordUploadPage() {
             />
             
             {/* 업로드 버튼 */}
-            <button
-                onClick={buttonOnClick}
-                disabled={!fileToUpload || isUploading}
-                className='p-3 bg-blue-500 text-white rounded-md disabled:bg-gray-400'
-            >
-                {step === 'upload' ? (isUploading ? '업로드 중...' : '업로드') : '기록 저장'}
-            </button>
+            {
+                step === 'answer' && (
+                    <button
+                        onClick={buttonOnClick}
+                        disabled={isEmpty(answer)}
+                        className='p-3 bg-blue-500 text-white rounded-md disabled:bg-gray-400'
+                    >
+                        기록 저장
+                    </button>
+                )
+            }
         </div>
     )
 }

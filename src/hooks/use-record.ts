@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getFirestore, query, setDoc, Timestamp, where } from '@firebase/firestore'
+import { collection, doc, getDocs, getFirestore, limit, orderBy, query, QueryDocumentSnapshot, setDoc, startAfter, Timestamp, where } from '@firebase/firestore'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { RecordCreateRequest, RecordQuestionRequest, RecordQuestionResponse } from '@/libs/dto/record.dto'
 import app from '../../firebaseConfig'
@@ -179,5 +179,119 @@ export const useRecord = () => {
         }
     }, [BASE_URL])
     
-    return { createRecord, getMonthlyRecords, getWeeklyRecords, getQuestion, getTodayRecord }
+    const getAllRecordsCount = useCallback(async () => {
+        if (!account?.uid) return 0
+        try {
+            const recordsRef = collection(firestore, 'Record')
+            const q = query(
+                recordsRef,
+                where('uid', '==', account.uid)
+            )
+            
+            // 3. 쿼리 실행 및 데이터 가공
+            const querySnapshot = await getDocs(q)
+            return querySnapshot.size
+        } catch {
+            return 0
+        }
+    }, [account?.uid, firestore])
+    
+    const getMonthlyRecordsCount = useCallback(async () => {
+        if (!account?.uid) return 0
+        try {
+            const date = new Date()
+            const startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+            const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 1)
+            
+            const recordsRef = collection(firestore, 'Record')
+            const q = query(
+                recordsRef,
+                where('uid', '==', account.uid), // **중요**: 현재 로그인한 유저의 데이터만!
+                where('createdAt', '>=', Timestamp.fromDate(startDate)),
+                where('createdAt', '<', Timestamp.fromDate(endDate))
+            )
+            
+            // 3. 쿼리 실행 및 데이터 가공
+            const querySnapshot = await getDocs(q)
+            return querySnapshot.size
+        } catch {
+            return 0
+        }
+    }, [account?.uid, firestore])
+    
+    const get100QnA = useCallback(async ({ pageParam, pageLimit }: { pageParam: unknown, pageLimit: number }) => {
+        if (!account?.uid) return { records: [], lastVisible: undefined }
+        try {
+            const recordsRef = collection(firestore, 'Record')
+            const baseQuery = query(recordsRef,
+                where('uid', '==', account.uid),
+                orderBy('createdAt', 'desc'),
+                limit(pageLimit)
+            )
+            
+            const finalQuery = pageParam ? query(baseQuery, startAfter(pageParam as QueryDocumentSnapshot)) : baseQuery
+            const querySnapshot = await getDocs(finalQuery)
+            if (querySnapshot.empty) {
+                return { records: [], lastVisible: undefined }
+            }
+            const records: Record[] = []
+            querySnapshot.forEach((doc) => {
+                const data = doc.data()
+                const recordData: IRecord = {
+                    uid: data.uid,
+                    imageUrl: data.imageUrl,
+                    question: data.question,
+                    answer: data.answer,
+                    createdAt: data.createdAt.toDate(),
+                    id: doc.id
+                }
+                records.push(new Record(recordData))
+            })
+            
+            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1]
+            return { records, lastVisible }
+            
+        } catch (err: unknown) {
+            console.log('Error fetching 100 QnA records:', err)
+            return { records: [], lastVisible: undefined }
+        }
+    }, [account?.uid, firestore])
+    
+    const getLastRecords = useCallback(async () => {
+        if (!account?.uid) return { records: [], count: 0 }
+        try {
+            const recordsRef = collection(firestore, 'Record')
+            const allCount = await getAllRecordsCount()
+            const howManyToFetch = allCount % 7
+            const q = query(recordsRef,
+                where('uid', '==', account.uid),
+                orderBy('createdAt', 'desc'),
+                limit(howManyToFetch)
+            )
+            
+            const querySnapshot = await getDocs(q)
+            const records: Record[] = []
+            querySnapshot.forEach((doc) => {
+                const data = doc.data()
+                const recordData: IRecord = {
+                    uid: data.uid,
+                    imageUrl: data.imageUrl,
+                    question: data.question,
+                    answer: data.answer,
+                    createdAt: data.createdAt.toDate(),
+                    id: doc.id
+                }
+                records.push(new Record(recordData))
+            })
+            
+            return { records: records.reverse(), count: howManyToFetch }
+        } catch {
+            return { records: [], count: 0 }
+        }
+    }, [account?.uid, firestore, getAllRecordsCount])
+    
+    return {
+        createRecord, getMonthlyRecords, getWeeklyRecords, getQuestion, getTodayRecord,
+        getAllRecordsCount, getMonthlyRecordsCount, get100QnA, getLastRecords
+    }
 }

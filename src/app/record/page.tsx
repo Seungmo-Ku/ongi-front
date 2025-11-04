@@ -10,6 +10,8 @@ import { getAuth } from '@firebase/auth'
 import { noop } from 'lodash'
 import { useAccountDocument } from '@/hooks/use-account-document'
 import { useGetTodayRecordQuery, useGetWeeklyRecordsQuery } from '@/hooks/use-react-query'
+import { useSetAtom } from 'jotai'
+import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
 
 
 export default function RecordPage() {
@@ -22,6 +24,8 @@ export default function RecordPage() {
     
     const { data: weeklyRecord } = useGetWeeklyRecordsQuery(currentDate)
     const { data: todayRecord, isLoading } = useGetTodayRecordQuery(showingDate)
+    
+    const setLoadingShow = useSetAtom(SpinnerViewAtom)
     
     useEffect(() => {
         const auth = getAuth()
@@ -45,6 +49,10 @@ export default function RecordPage() {
             sundayDateNumber + index
         ) // e.g., Date 객체 (2025-11-01)
     }
+    
+    useEffect(() => {
+        if (todayRecord) setLoadingShow({ show: false })
+    }, [setLoadingShow, todayRecord])
     
     const showingDayComponent = useMemo(() => {
         if (!todayRecord) return null

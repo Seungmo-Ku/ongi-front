@@ -7,6 +7,8 @@ import Header from '@/components/header'
 import { Footer } from '@/components/footer/footer'
 import { Metadata, Viewport } from 'next'
 import Providers from '@/app/providers'
+import { SpinnerView } from '@/components/spinner/spinner-view'
+import { DialogSevenDays } from '@/components/dialog/dialog-seven-days'
 
 
 export const metadata: Metadata = {
@@ -74,8 +76,9 @@ export default function RootLayout({
                         <footer className='w-full shrink-0'>
                             <Footer/>
                         </footer>
+                        <SpinnerView/>
+                        <DialogSevenDays/>
                     </div>
-                
                 </DirectionProvider>
             </Providers>
         </div>
