@@ -8,11 +8,19 @@ import { useDirection } from '@/components/layout/direction-provider'
 
 const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname()
-    const { direction } = useDirection()
+    const { direction, pastPath } = useDirection()
     
     const variants = {
         initial: { opacity: 0, x: direction === 'forward' ? 100 : -100 },
         animate: { opacity: 1, x: 0 }
+    }
+    
+    if (pathname.startsWith('/record')) {
+        variants.initial.x = -100
+    }
+    
+    if (pathname.startsWith('/calendar') && !pastPath.startsWith('/record')) {
+        variants.initial.x = -100
     }
     
     return (
@@ -23,9 +31,12 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
                 initial='initial'
                 animate='animate'
                 transition={{ duration: 0.3 }}
-                className='min-h-screen'
+                className='w-full grow overflow-hidden opacity-0'
+                style={{ transform: 'translateZ(0)' }}
             >
-                {children}
+                <div className='w-full h-full flex flex-col items-center overflow-hidden relative'>
+                    {children}
+                </div>
             </motion.div>
         </AnimatePresence>
     )

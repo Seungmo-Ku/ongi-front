@@ -1,14 +1,16 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useDirection } from '@/components/layout/direction-provider'
 
 
 export const useDirectionalRouter = () => {
     const router = useRouter()
-    const { setDirection } = useDirection()
+    const pathname = usePathname()
+    const { setDirection, setPastPath } = useDirection()
     
     const push = (path: string) => {
+        setPastPath(pathname)
         setDirection('forward')
         router.push(path)
     }
