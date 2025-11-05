@@ -68,14 +68,14 @@ export const HeaderMain = () => {
                                         <LayoutGrid
                                             className='h-6 shrink-0'
                                             onClick={() => {
-                                                setCalendarMode('calendar')
+                                                setCalendarMode('grid')
                                             }}
                                         />
                                     ) : (
                                         <Calendar
                                             className='h-6 shrink-0'
                                             onClick={() => {
-                                                setCalendarMode('grid')
+                                                setCalendarMode('calendar')
                                             }}
                                         />
                                     )
