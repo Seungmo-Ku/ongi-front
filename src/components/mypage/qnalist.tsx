@@ -28,13 +28,13 @@ export const QnAList = () => {
             {
                 qnaList.map((item, index) => (
                     <div
-                        className='w-full flex flex-col items-start justify-start text-black'
+                        className='w-full flex flex-col items-start justify-start text-black gap-y-1'
                         key={index}
                     >
-                        <p className='text-16-bold break-keep'>
+                        <p className='text-14-bold break-keep'>
                             {`${index + 1}. ${item.question}`}
                         </p>
-                        <p className='text-16-light break-keep flex flex-row'>
+                        <p className='text-14-light break-keep flex flex-row'>
                             <span className='w-1 shrink-0'/>
                             {item.answer}
                         </p>

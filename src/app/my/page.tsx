@@ -56,7 +56,7 @@ const MyPage = () => {
                             className={clsx('transition duration-300 border-[1.5px] border-transparent', tap === 'qna' ? 'text-black border-b-black' : 'text-[#E6E6E6]')}
                             onClick={() => setTap('qna')}
                         >
-                            백분백답
+                            백문백답
                         </p>
                     </div>
                     <div className='w-full h-[1px] bg-[#D0D5DA] -translate-y-[0.5px] z-0'/>

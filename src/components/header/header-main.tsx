@@ -31,7 +31,7 @@ export const HeaderMain = () => {
         if (isMyPage) return <p>마이페이지</p>
         if (isRegisterPage) return <p>회원가입</p>
         if (currentDate) {
-            return <p>{`${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월 ${currentDate.getDate()}일`}</p>
+            return <p>{`${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}</p>
         } else return null
     }, [currentDate, isMyPage, isRegisterPage])
     
@@ -64,7 +64,7 @@ export const HeaderMain = () => {
                             {
                                 pathname.startsWith('/calendar') &&
                                 (
-                                    calendarMode === 'grid' ? (
+                                    calendarMode === 'calendar' ? (
                                         <LayoutGrid
                                             className='h-6 shrink-0'
                                             onClick={() => {
