@@ -2,21 +2,15 @@
 
 import RecordUploadPage from '@/app/record/upload/page'
 import React, { useEffect, useMemo } from 'react'
-import { useAccount } from '@/components/layout/account-context-provider'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
 import Button from '@/components/button'
 import clsx from 'clsx'
-import { getAuth } from '@firebase/auth'
-import { noop } from 'lodash'
-import { useAccountDocument } from '@/hooks/use-account-document'
 import { useGetTodayRecordQuery, useGetWeeklyRecordsQuery } from '@/hooks/use-react-query'
 import { useSetAtom } from 'jotai'
 import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
 
 
 export default function RecordPage() {
-    const { user, setUser } = useAccount()
-    const { updateUserAccount } = useAccountDocument()
     
     const { currentDate, showingDate, setShowingDate } = useCurrentDate()
     
@@ -26,17 +20,6 @@ export default function RecordPage() {
     const { data: todayRecord, isLoading } = useGetTodayRecordQuery(showingDate)
     
     const setLoadingShow = useSetAtom(SpinnerViewAtom)
-    
-    useEffect(() => {
-        const auth = getAuth()
-        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-            if (user?.uid === firebaseUser?.uid) return
-            setUser(firebaseUser)
-            if (firebaseUser) updateUserAccount(firebaseUser).then(noop)
-        })
-        return () => unsubscribe()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setUser, updateUserAccount])
     
     const getDateForWeekIndex = (index: number) => {
         // 기준 날짜가 속한 주의 "일요일"에 해당하는 날짜 숫자를 계산

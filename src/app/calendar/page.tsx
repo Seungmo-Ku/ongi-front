@@ -1,10 +1,6 @@
 'use client'
 
 import { useAccount } from '@/components/layout/account-context-provider'
-import { useEffect } from 'react'
-import { getAuth } from '@firebase/auth'
-import { noop } from 'lodash'
-import { useAccountDocument } from '@/hooks/use-account-document'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
 import Button from '@/components/button'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
@@ -12,8 +8,7 @@ import { useGetMonthlyRecordsQuery } from '@/hooks/use-react-query'
 
 
 export default function PhotoCalendarPage() {
-    const { account, user, setUser } = useAccount()
-    const { updateUserAccount } = useAccountDocument()
+    const { account } = useAccount()
     const { push } = useDirectionalRouter()
     
     const { currentDate, setShowingDate, setCurrentDate, calendarMode } = useCurrentDate()
@@ -21,17 +16,6 @@ export default function PhotoCalendarPage() {
     const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
     
     const { data: monthlyRecords, isLoading } = useGetMonthlyRecordsQuery(currentDate)
-    
-    useEffect(() => {
-        const auth = getAuth()
-        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-            if (user?.uid === firebaseUser?.uid) return
-            setUser(firebaseUser)
-            if (firebaseUser) updateUserAccount(firebaseUser).then(noop)
-        })
-        return () => unsubscribe()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setUser, updateUserAccount])
     
     const renderCalendar = () => {
         if (!monthlyRecords || isLoading) return []
