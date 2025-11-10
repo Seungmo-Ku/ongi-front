@@ -4,9 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ref, uploadBytes, getStorage } from '@firebase/storage'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import { getAuth } from '@firebase/auth'
-import { isEmpty, noop } from 'lodash'
-import { useAccountDocument } from '@/hooks/use-account-document'
+import { isEmpty } from 'lodash'
 import { useRecord } from '@/hooks/use-record'
 import { Textarea } from '@headlessui/react'
 import imageCompression from 'browser-image-compression'
@@ -21,9 +19,8 @@ import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
 
 export default function RecordUploadPage() {
     
-    const { account, user, setUser } = useAccount()
+    const { account } = useAccount()
     const { push } = useDirectionalRouter()
-    const { updateUserAccount } = useAccountDocument()
     
     const [error, setError] = useState(false)
     const [fileToUpload, setFileToUpload] = useState<File | null>(null)
@@ -56,17 +53,6 @@ export default function RecordUploadPage() {
     const { getQuestion } = useRecord()
     const { setShowingDate, setCurrentDate } = useCurrentDate()
     const { mutateAsync } = useCreateRecordMutation()
-    
-    useEffect(() => {
-        const auth = getAuth()
-        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-            if (user?.uid === firebaseUser?.uid) return
-            setUser(firebaseUser)
-            if (firebaseUser) updateUserAccount(firebaseUser).then(noop)
-        })
-        return () => unsubscribe()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setUser, updateUserAccount])
     
     // 업로드 버튼 클릭 시 실행될 함수
     const handleUpload = useCallback(async () => {

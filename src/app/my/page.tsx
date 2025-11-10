@@ -1,36 +1,19 @@
 'use client'
 
 import { useGetAllRecordsCountQuery, useGetMonthlyRecordsCountQuery } from '@/hooks/use-react-query'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import clsx from 'clsx'
-import { getAuth } from '@firebase/auth'
-import { noop } from 'lodash'
-import { useAccount } from '@/components/layout/account-context-provider'
-import { useAccountDocument } from '@/hooks/use-account-document'
 import { QnAList } from '@/components/mypage/qnalist'
 import { MyBadge } from '@/components/mypage/mybadge'
 
 
 const MyPage = () => {
-    const { user, setUser } = useAccount()
-    const { updateUserAccount } = useAccountDocument()
     
     const { data: allCount } = useGetAllRecordsCountQuery()
     const { data: monthlyCount } = useGetMonthlyRecordsCountQuery()
     
     const [tap, setTap] = useState<'badge' | 'qna'>('badge')
     
-    useEffect(() => {
-        const auth = getAuth()
-        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-            if (user?.uid === firebaseUser?.uid) return
-            setUser(firebaseUser)
-            if (firebaseUser) updateUserAccount(firebaseUser).then(noop)
-        })
-        return () => unsubscribe()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setUser, updateUserAccount])
-
     return (
         <div className='w-full h-full flex flex-col items-center justify-start gap-y-8 overflow-y-scroll px-4'>
             <div className='w-full border border-[#D0D5DA] rounded-[10px] grid grid-cols-2 py-2'>

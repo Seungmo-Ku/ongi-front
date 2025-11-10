@@ -4,10 +4,15 @@
 import { Spinner } from '@/components/spinner/index'
 import { Image } from 'lucide-react'
 import { atom, useAtomValue } from 'jotai'
+import { useMemo } from 'react'
 
 interface SpinnerViewProps {
     show: boolean
 }
+
+export const InitialLoadingAtom = atom<SpinnerViewProps>({
+    show: true
+})
 
 export const SpinnerViewAtom = atom<SpinnerViewProps>({
     show: false
@@ -16,7 +21,11 @@ export const SpinnerViewAtom = atom<SpinnerViewProps>({
 export const SpinnerView = () => {
     
     const useSpinnerViewAtom = useAtomValue(SpinnerViewAtom)
-    const { show } = useSpinnerViewAtom
+    const useInitialLoadingAtom = useAtomValue(InitialLoadingAtom)
+    const { show: spinnerShow } = useSpinnerViewAtom
+    const { show: initialLoadingShow } = useInitialLoadingAtom
+    
+    const show = useMemo(() => spinnerShow || initialLoadingShow, [spinnerShow, initialLoadingShow])
     
     if (!show) return null
     return (
