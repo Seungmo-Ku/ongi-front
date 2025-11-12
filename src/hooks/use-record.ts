@@ -9,7 +9,7 @@ import axios from 'axios'
 
 export const useRecord = () => {
     const firestore = getFirestore(app)
-    const { account } = useAccount()
+    const { account, user } = useAccount()
     const BASE_URL = process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL
     
     const createRecord = useCallback(async (request: RecordCreateRequest) => {
@@ -22,7 +22,8 @@ export const useRecord = () => {
                 imageUrl: request.imageUrl,
                 question: request.question,
                 answer: request.answer,
-                createdAt: new Date()
+                createdAt: new Date(),
+                category: request?.category || ''
             })
             return true
         } catch {
@@ -166,9 +167,15 @@ export const useRecord = () => {
     }, [account?.uid, firestore])
     
     const getQuestion = useCallback(async (Request: RecordQuestionRequest) => {
-        if (!BASE_URL) return null
+        if (!BASE_URL || !user) return null
+        
         try {
-            const response = await axios.post(`${BASE_URL}/question`, Request)
+            const token = await user.getIdToken()
+            const response = await axios.post(`${BASE_URL}/question`, Request, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             if (response.status === 200) {
                 return response.data as RecordQuestionResponse
             } else {
@@ -177,7 +184,7 @@ export const useRecord = () => {
         } catch {
             return null
         }
-    }, [BASE_URL])
+    }, [BASE_URL, user])
     
     const getAllRecordsCount = useCallback(async () => {
         if (!account?.uid) return 0
