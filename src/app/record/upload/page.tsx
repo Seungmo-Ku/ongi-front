@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ref, uploadBytes, getStorage } from '@firebase/storage'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
@@ -38,6 +38,8 @@ export default function RecordUploadPage() {
     const setLoadingShow = useSetAtom(SpinnerViewAtom)
     const setSevenDays = useSetAtom(DialogSevenDaysAtom)
     
+    const inputRef = useRef<HTMLInputElement>(null)
+    
     useEffect(() => {
         return () => {
             setIsUploading(false)
@@ -56,22 +58,9 @@ export default function RecordUploadPage() {
     const { setShowingDate, setCurrentDate } = useCurrentDate()
     const { mutateAsync } = useCreateRecordMutation()
     
-    // 업로드 버튼 클릭 시 실행될 함수
-    const handleUpload = useCallback(async () => {
-        if (!fileToUpload) {
-            return
-        }
-        setIsUploading(true)
-        
+    const getQuestionAfterUpload = useCallback(async (downloadURL: string) => {
+        if (!downloadURL) return false
         try {
-            // 1. Firebase Storage에 어디에 저장할 지 '참조'를 만듭니다.
-            const fileName = `${Date.now()}_${fileToUpload.name}`
-            const storageRef = ref(getStorage(app), `uploads/${account?.uid}/${fileName}`)
-            
-            const uploadTask = await uploadBytes(storageRef, fileToUpload)
-            
-            // const downloadURL = await getDownloadURL(uploadTask.ref)
-            const downloadURL = `https://storage.googleapis.com/jerry-a9e31.firebasestorage.app/uploads/${account?.uid}/${fileName}`
             setImageUrl(downloadURL)
             
             const response = await getQuestion({
@@ -88,12 +77,66 @@ export default function RecordUploadPage() {
             setQuestion(response.question)
             setCategory(response.category)
             setStep('answer')
+            
+            return true
+        } catch {
+            setError(true)
+            return false
+        }
+    }, [getQuestion, uploadCount])
+    
+    // 업로드 버튼 클릭 시 실행될 함수
+    const handleWebUpload = useCallback(async () => {
+        if (!fileToUpload) {
+            return
+        }
+        setIsUploading(true)
+        
+        try {
+            // 1. Firebase Storage에 어디에 저장할 지 '참조'를 만듭니다.
+            const fileName = `${Date.now()}_${fileToUpload.name}`
+            const storageRef = ref(getStorage(app), `uploads/${account?.uid}/${fileName}`)
+            
+            const uploadTask = await uploadBytes(storageRef, fileToUpload)
+            
+            // const downloadURL = await getDownloadURL(uploadTask.ref)
+            const downloadURL = `https://storage.googleapis.com/jerry-a9e31.firebasestorage.app/uploads/${account?.uid}/${fileName}`
+            const success = await getQuestionAfterUpload(downloadURL)
+            if (!success) {
+                setError(true)
+                return
+            }
+            
         } catch {
             setError(true)
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, fileToUpload, getQuestion, uploadCount])
+    }, [account?.uid, fileToUpload, getQuestionAfterUpload])
+    
+    const handleNativeUpload = useCallback(async () => {
+        if (!window.flutter_inappwebview || !account?.uid || isUploading) return
+        setIsUploading(true)
+        try {
+            const fileName = (await window.flutter_inappwebview.callHandler('nativeImagePicker', account.uid) as string).toString()
+            if (fileName) {
+                const downloadURL = `https://storage.googleapis.com/jerry-a9e31.firebasestorage.app/uploads/${account?.uid}/${fileName}`
+                setPreviewUrl(downloadURL)
+                const success = await getQuestionAfterUpload(downloadURL)
+                if (!success) {
+                    setError(true)
+                    return
+                }
+            } else {
+                setError(true)
+                return
+            }
+        } catch {
+            setError(true)
+        } finally {
+            setIsUploading(false)
+        }
+    }, [account?.uid, getQuestionAfterUpload, isUploading])
     
     const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0]
@@ -129,9 +172,9 @@ export default function RecordUploadPage() {
     
     useEffect(() => {
         if (isEmpty(question) && fileToUpload && !isUploading) {
-            handleUpload()
+            handleWebUpload()
         }
-    }, [fileToUpload, handleUpload, isUploading, question])
+    }, [fileToUpload, handleWebUpload, isUploading, question])
     
     const handleSaveRecord = useCallback(async () => {
         if (isEmpty(answer)) return
@@ -169,12 +212,23 @@ export default function RecordUploadPage() {
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {
-            handleUpload()
+            handleWebUpload()
             return
         } else {
             handleSaveRecord()
         }
-    }, [handleSaveRecord, handleUpload, step])
+    }, [handleSaveRecord, handleWebUpload, step])
+    
+    const onUploadClick = useCallback(async () => {
+        if (!account || isUploading) {
+            return
+        }
+        if (window.flutter_inappwebview) {
+            await handleNativeUpload()
+        } else {
+            inputRef.current?.click()
+        }
+    }, [account, handleNativeUpload, isUploading])
     
     return (
         <div className='h-full w-full flex flex-col overflow-y-scroll items-center justify-start gap-y-7 px-5'>
@@ -199,14 +253,18 @@ export default function RecordUploadPage() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={previewUrl} alt='upload preview' className='w-full aspect-square shrink-0 object-contain rounded-[15px]'/>
                     ) : (
-                        <label htmlFor='proof-shot-select' className='w-full aspect-square shrink-0 bg-[#EFEFEF] flex flex-col gap-y-7 items-center justify-center rounded-[15px]'>
+                        <button
+                            className='w-full aspect-square shrink-0 bg-[#EFEFEF] flex flex-col gap-y-7 items-center justify-center rounded-[15px]'
+                            onClick={onUploadClick}
+                            disabled={isUploading}
+                        >
                             <div className='w-[30px] h-[30px] shrink-0 rounded-full bg-[#35618E] flex items-center justify-center'>
                                 <Plus className='text-white size-4 shrink-0'/>
                             </div>
                             <p className='text-16-medium text-[#888]'>
                                 하루 한장의 사진으로 당신을 알아보세요
                             </p>
-                        </label>
+                        </button>
                     )
                 }
             </div>
@@ -231,7 +289,7 @@ export default function RecordUploadPage() {
             }
             <input
                 className='hidden'
-                id='proof-shot-select'
+                ref={inputRef}
                 type='file'
                 accept='image/*'
                 onChange={handleFileChange}
