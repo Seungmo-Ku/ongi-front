@@ -11,7 +11,7 @@ import imageCompression from 'browser-image-compression'
 import { Plus } from 'lucide-react'
 import app from '../../../../firebaseConfig'
 import { useCurrentDate } from '@/components/layout/current-date-provider'
-import { useCreateRecordMutation, useGetLastRecordsQuery } from '@/hooks/use-react-query'
+import { useCreateRecordMutation, useGetAllRecordsCountQuery, useGetLastRecordsQuery } from '@/hooks/use-react-query'
 import { useSetAtom } from 'jotai'
 import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
 import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
@@ -27,11 +27,13 @@ export default function RecordUploadPage() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const [question, setQuestion] = useState<string>('')
+    const [category, setCategory] = useState<string>('')
     const [answer, setAnswer] = useState<string>('')
     const [imageUrl, setImageUrl] = useState<string>('')
     const [step, setStep] = useState<'upload' | 'answer'>('upload')
     
     const { data } = useGetLastRecordsQuery()
+    const { data: uploadCount } = useGetAllRecordsCountQuery()
     
     const setLoadingShow = useSetAtom(SpinnerViewAtom)
     const setSevenDays = useSetAtom(DialogSevenDaysAtom)
@@ -62,7 +64,8 @@ export default function RecordUploadPage() {
             setImageUrl(downloadURL)
             
             const response = await getQuestion({
-                imageUrl: downloadURL
+                imageUrl: downloadURL,
+                uploadCount: uploadCount || 0
             })
             
             if (!response) {
@@ -72,6 +75,7 @@ export default function RecordUploadPage() {
             }
             
             setQuestion(response.question)
+            setCategory(response.category)
             setStep('answer')
             
             return true
@@ -79,7 +83,7 @@ export default function RecordUploadPage() {
             setError(true)
             return false
         }
-    }, [getQuestion])
+    }, [getQuestion, uploadCount])
     
     // 업로드 버튼 클릭 시 실행될 함수
     const handleWebUpload = useCallback(async () => {
@@ -183,7 +187,8 @@ export default function RecordUploadPage() {
                 uid: account?.uid || '',
                 imageUrl: imageUrl,
                 question: question,
-                answer: answer
+                answer: answer,
+                category: category
             })
             if (response) {
                 setShowingDate(new Date())
@@ -203,7 +208,7 @@ export default function RecordUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, data?.count, imageUrl, mutateAsync, question, setCurrentDate, setSevenDays, setShowingDate])
+    }, [account?.uid, answer, category, data?.count, imageUrl, mutateAsync, question, setCurrentDate, setSevenDays, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {

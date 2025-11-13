@@ -5,6 +5,7 @@ export interface IRecord {
     createdAt: Date
     question: string
     answer: string
+    category?: string
 }
 
 export class Record implements IRecord {
@@ -14,6 +15,7 @@ export class Record implements IRecord {
     createdAt: Date
     question: string
     answer: string
+    category?: string
     
     constructor(data: IRecord) {
         this.id = data.id
@@ -22,5 +24,6 @@ export class Record implements IRecord {
         this.createdAt = new Date(data.createdAt)
         this.question = data.question
         this.answer = data.answer
+        this.category = data.category || ''
     }
 }
