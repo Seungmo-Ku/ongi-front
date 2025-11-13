@@ -220,12 +220,15 @@ export default function RecordUploadPage() {
     }, [handleSaveRecord, handleWebUpload, step])
     
     const onUploadClick = useCallback(async () => {
+        if (!account || isUploading) {
+            return
+        }
         if (window.flutter_inappwebview) {
             await handleNativeUpload()
         } else {
             inputRef.current?.click()
         }
-    }, [handleNativeUpload])
+    }, [account, handleNativeUpload, isUploading])
     
     return (
         <div className='h-full w-full flex flex-col overflow-y-scroll items-center justify-start gap-y-7 px-5'>
