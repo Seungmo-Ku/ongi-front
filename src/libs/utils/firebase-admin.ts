@@ -7,7 +7,8 @@ if (!admin.apps.length) {
         privateKey: process.env.NEXT_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n')
     }
     admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert(serviceAccount),
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     })
 }
 

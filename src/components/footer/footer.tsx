@@ -49,7 +49,7 @@ export const Footer = () => {
         )
     }, [selected])
     
-    if (pathname.startsWith('/login')) return null
+    if (pathname.startsWith('/login') || pathname.startsWith('/settings')) return null
     
     return (
         <div className='w-full shrink-0 pt-4 pb-2 px-4 grid grid-cols-3 items-center justify-center text-white z-[1] bg-white'>
