@@ -39,7 +39,7 @@ const LoginPage = () => {
         setError('')
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
-            if (userCredential.user) back()
+            if (userCredential.user) push('/record')
             else {
                 setError('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.')
             }
