@@ -83,6 +83,15 @@ export default function SettingsPage() {
                     
                     <hr className='border-gray-200'/>
                     
+                    <a
+                        href="https://bcgo99.notion.site/2afcae824a6480269b36e1ab7df5ea2e?source=copy_link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full py-3 text-center text-sm text-gray-500 hover:text-gray-700"
+                    >
+                        개인정보 처리방침
+                    </a>
+                    
                     {/* 회원 탈퇴 버튼 (빨간색으로 위험 표시) */}
                     <div className='flex flex-col gap-y-2'>
                         <h3 className='text-sm font-bold text-gray-500'>계정 관리</h3>
