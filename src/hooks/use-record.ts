@@ -300,19 +300,14 @@ export const useRecord = () => {
     
     const getBadge = useCallback(async () => {
         if (!BASE_URL || !user) return null
-        
         try {
             const token = await user.getIdToken()
-            const response = await axios.post(`${BASE_URL}/badge`, {}, {
+            axios.post(`${BASE_URL}/badge`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-            if (response.status === 200) {
-                return response.data as RecordQuestionResponse
-            } else {
-                return null
-            }
+            return null
         } catch {
             return null
         }
