@@ -121,3 +121,52 @@ export const useCreateRecordMutation = () => {
         }
     })
 }
+
+export const useIsUncheckedBadgeQuery = () => {
+    const { account } = useAccount()
+    const { isUncheckedBadge } = useRecord()
+    
+    return useQuery({
+        queryKey: ['is-unchecked-badge', account?.uid],
+        queryFn: () => isUncheckedBadge(),
+        enabled: !!account?.uid,
+        staleTime: 1000 * 60 * 5
+    })
+}
+
+export const useSetAllBadgesCheckedMutation = () => {
+    const { account } = useAccount()
+    const { setAllBadgesChecked } = useRecord()
+    const queryClient = useQueryClient()
+    
+    return useMutation({
+        mutationFn: async () => await setAllBadgesChecked(),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['is-unchecked-badge', account?.uid] })
+        }
+    })
+}
+
+export const useGetAllBadgesQuery = () => {
+    const { account } = useAccount()
+    const { getAllBadges } = useRecord()
+    
+    return useQuery({
+        queryKey: ['all-badges', account?.uid],
+        queryFn: () => getAllBadges(),
+        enabled: !!account?.uid,
+        staleTime: 1000 * 60 * 5
+    })
+}
+export const useSelectBadgeMutation = () => {
+    const { account } = useAccount()
+    const { selectBadge } = useRecord()
+    const queryClient = useQueryClient()
+    
+    return useMutation({
+        mutationFn: async ({ badgeId, index }: { badgeId: string, index: number }) => await selectBadge(badgeId, index),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['all-badges', account?.uid] })
+        }
+    })
+}

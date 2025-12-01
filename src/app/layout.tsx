@@ -9,6 +9,8 @@ import { Metadata, Viewport } from 'next'
 import Providers from '@/app/providers'
 import { SpinnerView } from '@/components/spinner/spinner-view'
 import { DialogSevenDays } from '@/components/dialog/dialog-seven-days'
+import { DialogSheetSelectBadge } from '@/components/dialog/dialog-sheet-select-badge'
+import { DialogSheetViewBadge } from '@/components/dialog/dialog-sheet-view-badge'
 
 
 export const metadata: Metadata = {
@@ -78,6 +80,8 @@ export default function RootLayout({
                         </footer>
                         <SpinnerView/>
                         <DialogSevenDays/>
+                        <DialogSheetSelectBadge/>
+                        <DialogSheetViewBadge/>
                     </div>
                 </DirectionProvider>
             </Providers>

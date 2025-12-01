@@ -2,8 +2,11 @@
 
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useDirection } from '@/components/layout/direction-provider'
+import { useIsUncheckedBadgeQuery } from '@/hooks/use-react-query'
+import { useSetAtom } from 'jotai'
+import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
 
 
 const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
@@ -22,6 +25,14 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     if (pathname.startsWith('/calendar') && !pastPath.startsWith('/record')) {
         variants.initial.x = -100
     }
+    
+    const { data, isLoading } = useIsUncheckedBadgeQuery()
+    const setSevenDays = useSetAtom(DialogSevenDaysAtom)
+    
+    useEffect(() => {
+        if (isLoading || !data) return
+        setSevenDays({ open: true })
+    }, [data, isLoading, setSevenDays])
     
     return (
         <AnimatePresence mode='wait'>
