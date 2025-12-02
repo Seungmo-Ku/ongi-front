@@ -5,6 +5,7 @@ import app from '../../firebaseConfig'
 import { IRecord, Record } from '@/libs/interfaces/record.interface'
 import { useCallback } from 'react'
 import axios from 'axios'
+import { Badge, IBadge } from '@/libs/interfaces/badge.interface'
 
 
 export const useRecord = () => {
@@ -297,8 +298,102 @@ export const useRecord = () => {
         }
     }, [account?.uid, firestore, getAllRecordsCount])
     
+    const getBadge = useCallback(async () => {
+        if (!BASE_URL || !user) return null
+        try {
+            const token = await user.getIdToken()
+            axios.post(`${BASE_URL}/badge`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            return null
+        } catch {
+            return null
+        }
+    }, [BASE_URL, user])
+    
+    const isUncheckedBadge = useCallback(async () => {
+        if (!account?.uid) return false
+        try {
+            const badgesRef = collection(firestore, 'Badge')
+            const q = query(
+                badgesRef,
+                where('uid', '==', account.uid),
+                where('checked', '==', false)
+            )
+            const querySnapshot = await getDocs(q)
+            return !querySnapshot.empty
+        } catch {
+            return false
+        }
+    }, [account?.uid, firestore])
+    
+    const setAllBadgesChecked = useCallback(async () => {
+        if (!account?.uid) return false
+        try {
+            const badgesRef = collection(firestore, 'Badge')
+            const q = query(
+                badgesRef,
+                where('uid', '==', account.uid),
+                where('checked', '==', false)
+            )
+            const querySnapshot = await getDocs(q)
+            const batchPromises = querySnapshot.docs.map((doc) => {
+                const badgeDocRef = doc.ref
+                return setDoc(badgeDocRef, { checked: true }, { merge: true })
+            })
+            await Promise.all(batchPromises)
+            return true
+        } catch {
+            return false
+        }
+    }, [account?.uid, firestore])
+    
+    const getAllBadges = useCallback(async () => {
+        if (!account?.uid) return []
+        try {
+            const badgesRef = collection(firestore, 'Badge')
+            const q = query(
+                badgesRef,
+                where('uid', '==', account.uid),
+                orderBy('createdAt', 'desc')
+            )
+            const querySnapshot = await getDocs(q)
+            const badges: Badge[] = []
+            querySnapshot.forEach((doc) => {
+                const data = doc.data()
+                const badge: IBadge = {
+                    id: doc.id,
+                    perspective_1: data.perspective_1,
+                    perspective_2: data.perspective_2,
+                    perspective_3: data.perspective_3,
+                    selected: data.selected,
+                    checked: data.checked,
+                    createdAt: data.createdAt.toDate(),
+                    imageUrl: data.imageUrl || ''
+                }
+                badges.push(new Badge(badge))
+            })
+            return badges
+        } catch {
+            return []
+        }
+    }, [account?.uid, firestore])
+    
+    const selectBadge = useCallback(async (id: string, index: number) => {
+        if (!account?.uid) return false
+        try {
+            const badgeDocRef = doc(firestore, 'Badge', id)
+            await setDoc(badgeDocRef, { selected: index }, { merge: true })
+            return true
+        } catch {
+            return false
+        }
+    }, [account?.uid, firestore])
+    
     return {
-        createRecord, getMonthlyRecords, getWeeklyRecords, getQuestion, getTodayRecord,
-        getAllRecordsCount, getMonthlyRecordsCount, get100QnA, getLastRecords
+        createRecord, getMonthlyRecords, getWeeklyRecords, getQuestion, getTodayRecord, selectBadge,
+        getAllRecordsCount, getMonthlyRecordsCount, get100QnA, getLastRecords, getBadge, isUncheckedBadge, setAllBadgesChecked, getAllBadges
     }
 }

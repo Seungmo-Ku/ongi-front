@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ref, uploadBytes, getStorage } from '@firebase/storage'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import { isEmpty } from 'lodash'
+import { isEmpty, noop } from 'lodash'
 import { useRecord } from '@/hooks/use-record'
 import { Textarea } from '@headlessui/react'
 import imageCompression from 'browser-image-compression'
@@ -54,7 +54,7 @@ export default function RecordUploadPage() {
         }
     }, [isUploading, setLoadingShow])
     
-    const { getQuestion } = useRecord()
+    const { getQuestion, getBadge } = useRecord()
     const { setShowingDate, setCurrentDate } = useCurrentDate()
     const { mutateAsync } = useCreateRecordMutation()
     
@@ -197,9 +197,10 @@ export default function RecordUploadPage() {
                 if (count === 6) {
                     // 7일째 기록 작성 완료
                     // TODO. gpt 호출해서 배지 만들기 api 호출
-                    setSevenDays({
-                        open: true
-                    })
+                    // setSevenDays({
+                    //     open: true
+                    // })
+                    getBadge().then(noop)
                 }
                 return
             }
@@ -208,7 +209,7 @@ export default function RecordUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, category, data?.count, imageUrl, mutateAsync, question, setCurrentDate, setSevenDays, setShowingDate])
+    }, [account?.uid, answer, category, data?.count, getBadge, imageUrl, mutateAsync, question, setCurrentDate, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {

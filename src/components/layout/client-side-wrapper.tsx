@@ -2,13 +2,18 @@
 
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useDirection } from '@/components/layout/direction-provider'
+import { useIsUncheckedBadgeQuery, useSetAllBadgesCheckedMutation } from '@/hooks/use-react-query'
+import { useSetAtom } from 'jotai'
+import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
+import { noop } from 'lodash'
 
 
 const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname()
     const { direction, pastPath } = useDirection()
+    const { mutateAsync } = useSetAllBadgesCheckedMutation()
     
     const variants = {
         initial: { opacity: 0, x: direction === 'forward' ? 100 : -100 },
@@ -22,6 +27,15 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     if (pathname.startsWith('/calendar') && !pastPath.startsWith('/record')) {
         variants.initial.x = -100
     }
+    
+    const { data, isLoading } = useIsUncheckedBadgeQuery()
+    const setSevenDays = useSetAtom(DialogSevenDaysAtom)
+    
+    useEffect(() => {
+        if (isLoading || !data) return
+        mutateAsync().then(noop)
+        setSevenDays({ open: true })
+    }, [data, isLoading, mutateAsync, setSevenDays])
     
     return (
         <AnimatePresence mode='wait'>
