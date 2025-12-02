@@ -130,7 +130,7 @@ export const useIsUncheckedBadgeQuery = () => {
         queryKey: ['is-unchecked-badge', account?.uid],
         queryFn: () => isUncheckedBadge(),
         enabled: !!account?.uid,
-        staleTime: 1000 * 60 * 5
+        refetchInterval: 1000 * 10
     })
 }
 
@@ -143,6 +143,7 @@ export const useSetAllBadgesCheckedMutation = () => {
         mutationFn: async () => await setAllBadgesChecked(),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['is-unchecked-badge', account?.uid] })
+            await queryClient.invalidateQueries({ queryKey: ['all-badges', account?.uid] })
         }
     })
 }

@@ -316,7 +316,7 @@ export const useRecord = () => {
     const isUncheckedBadge = useCallback(async () => {
         if (!account?.uid) return false
         try {
-            const badgesRef = collection(firestore, 'Badges')
+            const badgesRef = collection(firestore, 'Badge')
             const q = query(
                 badgesRef,
                 where('uid', '==', account.uid),
@@ -332,7 +332,7 @@ export const useRecord = () => {
     const setAllBadgesChecked = useCallback(async () => {
         if (!account?.uid) return false
         try {
-            const badgesRef = collection(firestore, 'Badges')
+            const badgesRef = collection(firestore, 'Badge')
             const q = query(
                 badgesRef,
                 where('uid', '==', account.uid),
@@ -353,7 +353,7 @@ export const useRecord = () => {
     const getAllBadges = useCallback(async () => {
         if (!account?.uid) return []
         try {
-            const badgesRef = collection(firestore, 'Badges')
+            const badgesRef = collection(firestore, 'Badge')
             const q = query(
                 badgesRef,
                 where('uid', '==', account.uid),
@@ -384,7 +384,7 @@ export const useRecord = () => {
     const selectBadge = useCallback(async (id: string, index: number) => {
         if (!account?.uid) return false
         try {
-            const badgeDocRef = doc(firestore, 'Badges', id)
+            const badgeDocRef = doc(firestore, 'Badge', id)
             await setDoc(badgeDocRef, { selected: index }, { merge: true })
             return true
         } catch {

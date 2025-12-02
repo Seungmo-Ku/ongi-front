@@ -5,8 +5,6 @@ import { useCallback } from 'react'
 import { atom, useAtom } from 'jotai'
 import { X } from 'lucide-react'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
-import { useSetAllBadgesCheckedMutation } from '@/hooks/use-react-query'
-import { noop } from 'lodash'
 
 
 interface DialogSevenDaysProps {
@@ -21,15 +19,12 @@ export const DialogSevenDays = () => {
     const { open } = sevenDaysAtom
     const { push } = useDirectionalRouter()
     
-    const { mutateAsync } = useSetAllBadgesCheckedMutation()
-    
     const onClose = useCallback(() => {
-        mutateAsync().then(noop)
         setSevenDaysAtom({
             ...sevenDaysAtom,
             open: false
         })
-    }, [mutateAsync, setSevenDaysAtom, sevenDaysAtom])
+    }, [setSevenDaysAtom, sevenDaysAtom])
     
     return (
         <Dialog

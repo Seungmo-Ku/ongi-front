@@ -4,14 +4,16 @@ import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ReactNode, useEffect } from 'react'
 import { useDirection } from '@/components/layout/direction-provider'
-import { useIsUncheckedBadgeQuery } from '@/hooks/use-react-query'
+import { useIsUncheckedBadgeQuery, useSetAllBadgesCheckedMutation } from '@/hooks/use-react-query'
 import { useSetAtom } from 'jotai'
 import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
+import { noop } from 'lodash'
 
 
 const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname()
     const { direction, pastPath } = useDirection()
+    const { mutateAsync } = useSetAllBadgesCheckedMutation()
     
     const variants = {
         initial: { opacity: 0, x: direction === 'forward' ? 100 : -100 },
@@ -31,8 +33,9 @@ const ClientSideWrapper = ({ children }: { children: ReactNode }) => {
     
     useEffect(() => {
         if (isLoading || !data) return
+        mutateAsync().then(noop)
         setSevenDays({ open: true })
-    }, [data, isLoading, setSevenDays])
+    }, [data, isLoading, mutateAsync, setSevenDays])
     
     return (
         <AnimatePresence mode='wait'>
