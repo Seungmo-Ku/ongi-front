@@ -1,6 +1,7 @@
 # Ongi - Your Daily AI-Powered Photo Journal
 
 Ongi is a mobile-first web application built with Next.js that transforms your daily photos into meaningful journal entries. Each day, you upload a single photo, and our AI generates a unique, thought-provoking question about it. Your answer, combined with the photo and the question, creates a beautiful, reflective record for that day.
+Available on https://ongi-front.vercel.app (Web) | https://apps.apple.com/kr/app/%ED%95%98%EB%A3%A8%EA%B8%B0%EB%A1%9D%EC%86%8C/id6754864159 (IOS App Store)
 
 ## ✨ Core Features
 
