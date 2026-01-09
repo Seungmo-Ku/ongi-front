@@ -298,11 +298,11 @@ export const useRecord = () => {
         }
     }, [account?.uid, firestore, getAllRecordsCount])
     
-    const getBadge = useCallback(async () => {
+    const getBadge = useCallback(async (Request: { language: number }) => {
         if (!BASE_URL || !user) return null
         try {
             const token = await user.getIdToken()
-            axios.post(`${BASE_URL}/badge`, {}, {
+            axios.post(`${BASE_URL}/badge`, Request, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

@@ -5,15 +5,17 @@ import { useCurrentDate } from '@/components/layout/current-date-provider'
 import Button from '@/components/button'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { useGetMonthlyRecordsQuery } from '@/hooks/use-react-query'
+import { useTranslation } from 'react-i18next'
 
 
 export default function PhotoCalendarPage() {
+    const { t } = useTranslation('common')
     const { account } = useAccount()
     const { push } = useDirectionalRouter()
     
     const { currentDate, setShowingDate, setCurrentDate, calendarMode } = useCurrentDate()
     
-    const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
+    const DAY_NAMES = [t('day_sun'), t('day_mon'), t('day_tue'), t('day_wed'), t('day_thu'), t('day_fri'), t('day_sat')]
     
     const { data: monthlyRecords, isLoading } = useGetMonthlyRecordsQuery(currentDate)
     
@@ -77,7 +79,7 @@ export default function PhotoCalendarPage() {
                     <div className='absolute w-full h-full z-[1] bg-black/30'/>
                     <img src={recordForDay.imageUrl} alt='imageUrl' className='w-full h-full opacity-60 object-cover'/>
                     <p className='absolute text-white z-[2] text-16-bold bottom-2.5 left-2'>
-                        {`${month + 1}월 ${day}일`}
+                        {t('month_day_format', { month: month + 1, day })}
                     </p>
                 </div>
             )
@@ -89,7 +91,7 @@ export default function PhotoCalendarPage() {
     if (!account) {
         return (
             <div className='h-full w-full flex flex-col overflow-hidden items-center justify-center gap-y-5 px-3'>
-                <p className='text-black'>No Account</p>
+                <p className='text-black'>{t('no_account')}</p>
             </div>
         )
     }
@@ -97,7 +99,7 @@ export default function PhotoCalendarPage() {
     return (
         <div className='h-full w-full flex flex-col overflow-y-scroll items-center justify-start gap-y-5 shrink-0'>
             {isLoading ? (
-                <div className='text-center p-10'>로딩 중...</div>
+                <div className='text-center p-10'>{t('loading')}</div>
             ) : (
                  calendarMode === 'calendar' ? (
                      <div className='grid grid-cols-7 gap-1 gap-y-5 w-full px-3'>

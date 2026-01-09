@@ -5,9 +5,11 @@ import { useCurrentDate } from '@/components/layout/current-date-provider'
 import { Calendar, ChevronLeft, ChevronRight, LayoutGrid, Settings } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useTranslation } from 'react-i18next'
 
 
 export const HeaderMain = () => {
+    const { t } = useTranslation('common')
     const pathname = usePathname()
     const { currentDate, setCurrentDate, calendarMode, setCalendarMode } = useCurrentDate()
     const { push, back } = useDirectionalRouter()
@@ -34,13 +36,13 @@ export const HeaderMain = () => {
     }, [pathname])
     
     const title = useMemo(() => {
-        if (isMyPage) return <p>마이페이지</p>
-        if (isRegisterPage) return <p>회원가입</p>
-        if (isSettingsPage) return <p>설정</p>
+        if (isMyPage) return <p>{t('header_my_page')}</p>
+        if (isRegisterPage) return <p>{t('register')}</p>
+        if (isSettingsPage) return <p>{t('header_settings')}</p>
         if (currentDate) {
-            return <p>{`${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}</p>
+            return <p>{t('year_month_format', { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1 })}</p>
         } else return null
-    }, [currentDate, isMyPage, isRegisterPage, isSettingsPage])
+    }, [currentDate, isMyPage, isRegisterPage, isSettingsPage, t])
     
     const showChevron = useMemo(() => {
         return !isRegisterPage && !isMyPage && !isSettingsPage

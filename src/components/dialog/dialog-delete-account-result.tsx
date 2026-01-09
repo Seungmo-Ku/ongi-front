@@ -1,6 +1,7 @@
 'use client'
 
 import { Dialog, DialogPanel } from '@headlessui/react'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogDeleteAccountResultProps {
@@ -14,6 +15,8 @@ export const DialogDeleteAccountResult = ({
     onClose,
     text = ''
 }: DialogDeleteAccountResultProps) => {
+    const { t } = useTranslation('common')
+    
     return (
         <Dialog
             transition
@@ -35,7 +38,7 @@ export const DialogDeleteAccountResult = ({
                                     onClose()
                                 }}
                             >
-                                확인
+                                {t('dialog_confirm')}
                             </button>
                         </div>
                     </div>

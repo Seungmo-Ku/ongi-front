@@ -6,6 +6,7 @@ import { atom, useAtom } from 'jotai'
 import { Fragment, useCallback, useMemo } from 'react'
 import { X } from 'lucide-react'
 import { isEmpty } from 'lodash'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogSheetViewBadgeProps {
@@ -16,7 +17,7 @@ interface DialogSheetViewBadgeProps {
 export const DialogSheetViewBadgeAtom = atom<DialogSheetViewBadgeProps>({ open: false, badge: null })
 
 export const DialogSheetViewBadge = ({}) => {
-    
+    const { t } = useTranslation('common')
     const [dialogSheetSelectBadgeAtom, setDialogSheetSelectBadgeAtom] = useAtom(DialogSheetViewBadgeAtom)
     const { open, badge } = dialogSheetSelectBadgeAtom
     
@@ -97,14 +98,14 @@ export const DialogSheetViewBadge = ({}) => {
                         <DialogPanel className='w-full max-h-3/4 bg-white text-black p-6 pb-11 rounded-t-2xl flex flex-col items-center justify-start relative gap-y-3 overflow-y-scroll'>
                             <DialogTitle className='w-full flex items-center justify-between text-16-regular'>
                                 <p className='text-black text-16-bold'>
-                                    일곱 걸음 스탬프
+                                    {t('seven_step_stamp')}
                                 </p>
                                 <div className='text-[#8F8F8F] cursor-pointer' onClick={onClose}>
                                     <X/>
                                 </div>
                             </DialogTitle>
                             <p className='text-[5F5F5F] text-13-regular w-full break-keep'>
-                                최근 7개의 사진 속에서 찾은 나의 모습은 어떠할까요?
+                                {t('dialog_view_badge_title')}
                             </p>
                             <div className='flex flex-col items-center w-full gap-y-10'>
                                 <div className='w-full flex flex-col items-center justify-start gap-y-5'>
@@ -121,7 +122,7 @@ export const DialogSheetViewBadge = ({}) => {
                                 {
                                     !isEmpty(details) && (
                                         <div className='w-full flex flex-col items-start justify-start gap-y-1 text-[#5F5F5F] text-13-regular'>
-                                            <p>7일 동안의 나는,</p>
+                                            <p>{t('dialog_view_badge_subtitle')}</p>
                                             {
                                                 details.map((detail, index) => (
                                                     <p key={`badge-detail-${index}`} className='pl-1'>

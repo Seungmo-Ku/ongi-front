@@ -3,6 +3,8 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '../libs/i18n'
 
 
 function makeQueryClient() {
@@ -35,7 +37,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     
     return (
         <QueryClientProvider client={queryClient}>
-            {children}
+            <I18nextProvider i18n={i18n}>
+                {children}
+            </I18nextProvider>
             
             <ReactQueryDevtools initialIsOpen={false}/>
         </QueryClientProvider>

@@ -8,13 +8,14 @@ import clsx from 'clsx'
 import { useGetTodayRecordQuery, useGetWeeklyRecordsQuery } from '@/hooks/use-react-query'
 import { useSetAtom } from 'jotai'
 import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
+import { useTranslation } from 'react-i18next'
 
 
 export default function RecordPage() {
-    
+    const { t } = useTranslation('common')
     const { currentDate, showingDate, setShowingDate } = useCurrentDate()
     
-    const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토']
+    const DAY_NAMES = [t('day_sun'), t('day_mon'), t('day_tue'), t('day_wed'), t('day_thu'), t('day_fri'), t('day_sat')]
     
     const { data: weeklyRecord } = useGetWeeklyRecordsQuery(currentDate)
     const { data: todayRecord, isLoading } = useGetTodayRecordQuery(showingDate)
@@ -93,7 +94,7 @@ export default function RecordPage() {
                     })
                 }
             </div>
-            <p className='text-16-bold text-black text-left self-start'>하루 한장 기록</p>
+            <p className='text-16-bold text-black text-left self-start'>{t('record_one_a_day')}</p>
             {
                 isLoading ? (
                     <div className='w-full flex flex-col items-center justify-center gap-y-7'>

@@ -2,10 +2,11 @@
 
 import { useGetLastRecordsQuery } from '@/hooks/use-react-query'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 
 export const StampComponent = () => {
-    
+    const { t } = useTranslation('common')
     const { data } = useGetLastRecordsQuery()
     
     const count = useMemo(() => {
@@ -22,10 +23,10 @@ export const StampComponent = () => {
         <div className='w-full flex flex-col items-start justify-start px-4 py-5 gap-y-4 rounded-[20px] bg-[#EDEDED]/30 text-black'>
             <div className='flex flex-col gap-y-2.5'>
                 <p className='text-black text-16-bold'>
-                    일곱 걸음 스탬프
+                    {t('seven_step_stamp')}
                 </p>
                 <p className='text-13-regular text-[#5F5F5F]'>
-                    7번의 기록이 쌓이면 배지 하나가 열려요 😀
+                    {t('seven_step_stamp_description')}
                 </p>
             </div>
             <div className='w-full grid grid-cols-7 gap-x-1 shrink-0 justify-start'>
@@ -49,13 +50,13 @@ export const StampComponent = () => {
                         if (index === 6) { // 마지막 칸
                             return (
                                 <div className='w-full aspect-square shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-[#D9D9D9] border-[3px] border-[#5F5F5F] text-13-regular text-[#5F5F5F]' key={index}>
-                                    OPEN
+                                    {t('open')}
                                 </div>
                             )
                         } else {
                             return (
                                 <div className='w-full aspect-square shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-[#D9D9D9] text-13-regular text-[#5F5F5F]' key={index}>
-                                    {`${index + 1}일차`}
+                                    {t('day_n', { day: index + 1 })}
                                 </div>
                             )
                         }

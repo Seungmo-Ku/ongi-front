@@ -7,6 +7,8 @@ import app from '../../../firebaseConfig'
 import { useAccount } from '@/components/layout/account-context-provider'
 import { DialogDeleteAccountConfirm } from '@/components/dialog/dialog-delete-account-confirm'
 import { DialogDeleteAccountResult } from '@/components/dialog/dialog-delete-account-result'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '@/components/button/language-switcher'
 
 
 export default function SettingsPage() {
@@ -16,6 +18,7 @@ export default function SettingsPage() {
     const [openDialog, setOpenDialog] = useState(false)
     const [openResultDialog, setOpenResultDialog] = useState(false)
     const [resultText, setResultText] = useState('')
+    const { t } = useTranslation('common')
     
     // 1. 로그아웃 함수
     const handleLogout = async () => {
@@ -43,8 +46,6 @@ export default function SettingsPage() {
             })
             
             if (response.ok) {
-                // setResultText('회원 탈퇴가 완료되었습니다.')
-                // setOpenResultDialog(true)
                 setUser(null)
                 setAccount(null)
                 // Firebase 클라이언트에서도 로그아웃 처리
@@ -67,9 +68,17 @@ export default function SettingsPage() {
         <div className='w-full h-full p-5 flex flex-col gap-y-6 bg-white'>
             {user ? (
                 <>
+                    {/* 언어 설정 */}
+                    <div className='flex flex-col gap-y-2'>
+                        <h3 className='text-sm font-bold text-gray-500'>{t('language_settings')}</h3>
+                        <LanguageSwitcher />
+                    </div>
+
+                    <hr className='border-gray-200'/>
+
                     {/* 로그인 정보 표시 */}
                     <div className='p-4 bg-gray-100 rounded-lg'>
-                        <p className='text-14-regular text-black'>로그인 계정</p>
+                        <p className='text-14-regular text-black'>{t('account_info')}</p>
                         <p className='text-14-bold text-black'>{user.email}</p>
                     </div>
                     
@@ -78,7 +87,7 @@ export default function SettingsPage() {
                         onClick={handleLogout}
                         className='w-full py-3 border text-black border-gray-300 rounded-lg hover:bg-gray-50'
                     >
-                        로그아웃
+                        {t('logout')}
                     </button>
                     
                     <hr className='border-gray-200'/>
@@ -89,12 +98,12 @@ export default function SettingsPage() {
                         rel="noopener noreferrer"
                         className="block w-full py-3 text-center text-sm text-gray-500 hover:text-gray-700"
                     >
-                        개인정보 처리방침
+                        {t('privacy_policy')}
                     </a>
                     
                     {/* 회원 탈퇴 버튼 (빨간색으로 위험 표시) */}
                     <div className='flex flex-col gap-y-2'>
-                        <h3 className='text-sm font-bold text-gray-500'>계정 관리</h3>
+                        <h3 className='text-sm font-bold text-gray-500'>{t('account_management')}</h3>
                         <button
                             onClick={() => {
                                 setOpenDialog(true)
@@ -102,22 +111,22 @@ export default function SettingsPage() {
                             disabled={isDeleting}
                             className='w-full py-3 text-red-500 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50'
                         >
-                            {isDeleting ? '처리 중...' : '회원 탈퇴'}
+                            {isDeleting ? t('delete_account_in_progress') : t('delete_account')}
                         </button>
                         <p className='text-xs text-gray-400 px-1'>
-                            탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
+                            {t('delete_account_confirm')}
                         </p>
                     </div>
                 </>
             ) : (
                  // 로그인 안 된 상태
                  <div className='text-center mt-10'>
-                     <p className='mb-4 text-black'>로그인이 필요합니다.</p>
+                     <p className='mb-4 text-black'>{t('login_required')}</p>
                      <button
                          onClick={() => router.push('/login')}
                          className='bg-black text-white px-6 py-3 rounded-lg'
                      >
-                         로그인 하러 가기
+                         {t('go_to_login')}
                      </button>
                  </div>
              )}

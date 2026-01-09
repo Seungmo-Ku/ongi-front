@@ -5,6 +5,7 @@ import { useCallback } from 'react'
 import { atom, useAtom } from 'jotai'
 import { X } from 'lucide-react'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogSevenDaysProps {
@@ -14,6 +15,7 @@ interface DialogSevenDaysProps {
 export const DialogSevenDaysAtom = atom<DialogSevenDaysProps>({ open: false })
 
 export const DialogSevenDays = () => {
+    const { t } = useTranslation('common')
     const [sevenDaysAtom, setSevenDaysAtom] = useAtom(DialogSevenDaysAtom)
     
     const { open } = sevenDaysAtom
@@ -44,7 +46,7 @@ export const DialogSevenDays = () => {
                         <img src='/images/gift.png' alt='gift' className='w-[120px] h-[120px] shrink-0'/>
                         <div className='w-full flex flex-col gap-y-3'>
                             <p className='text-16-regular text-center break-keep'>
-                                지난 7번의 기록에 대한 배지가 열렸어요
+                                {t('dialog_seven_days_title')}
                             </p>
                             <button
                                 className='px-10 py-3 text-16-regular rounded-[30px] bg-[#F5F5F5] text-black'
@@ -53,7 +55,7 @@ export const DialogSevenDays = () => {
                                     onClose()
                                 }}
                             >
-                                확인하러 가기
+                                {t('dialog_seven_days_button')}
                             </button>
                         </div>
                     </div>

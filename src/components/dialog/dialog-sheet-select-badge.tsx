@@ -8,6 +8,7 @@ import { X } from 'lucide-react'
 import clsx from 'clsx'
 import { useSelectBadgeMutation } from '@/hooks/use-react-query'
 import { DialogSheetViewBadgeAtom } from '@/components/dialog/dialog-sheet-view-badge'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogSheetSelectBadgeProps {
@@ -18,7 +19,7 @@ interface DialogSheetSelectBadgeProps {
 export const DialogSheetSelectBadgeAtom = atom<DialogSheetSelectBadgeProps>({ open: false, badge: null })
 
 export const DialogSheetSelectBadge = ({}) => {
-    
+    const { t } = useTranslation('common')
     const [dialogSheetSelectBadgeAtom, setDialogSheetSelectBadgeAtom] = useAtom(DialogSheetSelectBadgeAtom)
     const setDialogSheetViewBadgeAtom = useSetAtom(DialogSheetViewBadgeAtom)
     const { open, badge } = dialogSheetSelectBadgeAtom
@@ -96,7 +97,7 @@ export const DialogSheetSelectBadge = ({}) => {
                             </DialogTitle>
                             <div className='flex flex-col items-center w-full gap-y-10'>
                                 <p className='text-16-regular text-black break-keep text-center w-full'>
-                                    지난 7개의 기록 속에서 당신의 모습을 가장 잘 담은 키워드를 골라보세요.
+                                    {t('dialog_select_badge_title')}
                                 </p>
                                 <div className='w-full flex flex-col gap-y-3'>
                                     {buttonComponent(0)}

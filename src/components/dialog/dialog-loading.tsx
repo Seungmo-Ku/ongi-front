@@ -1,5 +1,6 @@
 import { Dialog, DialogPanel } from '@headlessui/react'
 import Image from 'next/image'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogLoadingProps {
@@ -9,6 +10,7 @@ interface DialogLoadingProps {
 export const DialogLoading = ({
     open
 }: DialogLoadingProps) => {
+    const { t } = useTranslation('common')
     
     return (
         <Dialog transition open={open} onClose={() => {
@@ -23,7 +25,7 @@ export const DialogLoading = ({
                             height={150}
                         />
                         <p className='text-[#686868] text-13-regular text-center animate-bounce'>
-                            생각하는 중...
+                            {t('dialog_thinking')}
                         </p>
                     </div>
                 </DialogPanel>

@@ -8,6 +8,7 @@ export type RecordResponse = IRecord
 export interface RecordQuestionRequest {
     imageUrl: string
     uploadCount: number
+    language: number
 }
 
 export interface RecordQuestionResponse {
