@@ -6,7 +6,6 @@ import { IRecord, Record } from '@/libs/interfaces/record.interface'
 import { useCallback } from 'react'
 import axios from 'axios'
 import { Badge, IBadge } from '@/libs/interfaces/badge.interface'
-import { useTranslation } from 'react-i18next'
 
 
 export const useRecord = () => {
