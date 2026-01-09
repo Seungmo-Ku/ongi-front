@@ -1,6 +1,7 @@
 'use client'
 
 import { Dialog, DialogPanel } from '@headlessui/react'
+import { useTranslation } from 'react-i18next'
 
 
 interface DialogDeleteAccountConfirmProps {
@@ -14,6 +15,8 @@ export const DialogDeleteAccountConfirm = ({
     onClose,
     onConfirm
 }: DialogDeleteAccountConfirmProps) => {
+    const { t } = useTranslation('common')
+    
     return (
         <Dialog
             transition
@@ -26,10 +29,10 @@ export const DialogDeleteAccountConfirm = ({
                     <div className='flex flex-col items-center w-full gap-y-6'>
                         <div className='w-full flex flex-col gap-y-3'>
                             <p className='text-20-bold text-center break-keep'>
-                                정말 탈퇴하시겠습니까?
+                                {t('dialog_delete_account_title')}
                             </p>
                             <p className='text-16-regular text-red-500 text-center break-keep'>
-                                탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.
+                                {t('delete_account_confirm')}
                             </p>
                             <div className='h-10'/>
                             <div className='w-full grid grid-cols-2 gap-x-2'>
@@ -39,7 +42,7 @@ export const DialogDeleteAccountConfirm = ({
                                         onClose()
                                     }}
                                 >
-                                    취소
+                                    {t('dialog_cancel')}
                                 </button>
                                 <button
                                     className='px-10 py-3 text-13-regular rounded-[30px] bg-[#F5F5F5] text-red-500'
@@ -47,7 +50,7 @@ export const DialogDeleteAccountConfirm = ({
                                         onConfirm()
                                     }}
                                 >
-                                    탈퇴하기
+                                    {t('dialog_delete_account_button')}
                                 </button>
                             </div>
                         </div>

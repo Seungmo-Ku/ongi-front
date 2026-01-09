@@ -15,10 +15,13 @@ import { useCreateRecordMutation, useGetAllRecordsCountQuery, useGetLastRecordsQ
 import { useSetAtom } from 'jotai'
 import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
 import { DialogSevenDaysAtom } from '@/components/dialog/dialog-seven-days'
+import { useTranslation } from 'react-i18next'
+
 
 
 export default function RecordUploadPage() {
-    
+    const { i18n } = useTranslation()
+    const { t } = useTranslation('common')
     const { account } = useAccount()
     const { push } = useDirectionalRouter()
     
@@ -65,11 +68,12 @@ export default function RecordUploadPage() {
             
             const response = await getQuestion({
                 imageUrl: downloadURL,
-                uploadCount: uploadCount || 0
+                uploadCount: uploadCount || 0,
+                language: i18n.language === 'en' ? 0 : 1
             })
             
             if (!response) {
-                setQuestion('질문을 불러오지 못했습니다.')
+                setQuestion(t('question_load_failed'))
                 setStep('answer')
                 return
             }
@@ -83,7 +87,7 @@ export default function RecordUploadPage() {
             setError(true)
             return false
         }
-    }, [getQuestion, uploadCount])
+    }, [getQuestion, i18n.language, t, uploadCount])
     
     // 업로드 버튼 클릭 시 실행될 함수
     const handleWebUpload = useCallback(async () => {
@@ -200,7 +204,9 @@ export default function RecordUploadPage() {
                     // setSevenDays({
                     //     open: true
                     // })
-                    getBadge().then(noop)
+                    getBadge({
+                        language: i18n.language === 'en' ? 0 : 1
+                    }).then(noop)
                 }
                 return
             }
@@ -209,7 +215,7 @@ export default function RecordUploadPage() {
         } finally {
             setIsUploading(false)
         }
-    }, [account?.uid, answer, category, data?.count, getBadge, imageUrl, mutateAsync, question, setCurrentDate, setShowingDate])
+    }, [account?.uid, answer, category, data?.count, getBadge, i18n.language, imageUrl, mutateAsync, question, setCurrentDate, setShowingDate])
     
     const buttonOnClick = useCallback(() => {
         if (step === 'upload') {
@@ -263,7 +269,7 @@ export default function RecordUploadPage() {
                                 <Plus className='text-white size-4 shrink-0'/>
                             </div>
                             <p className='text-16-medium text-[#888]'>
-                                하루 한장의 사진으로 당신을 알아보세요
+                                {t('get_to_know_you')}
                             </p>
                         </button>
                     )
@@ -281,7 +287,7 @@ export default function RecordUploadPage() {
                         </p>
                         <Textarea
                             className='w-full bg-white text-black'
-                            placeholder={'답변을 입력해주세요'}
+                            placeholder={t('enter_your_answer')}
                             value={answer}
                             onChange={(e) => setAnswer(e.target.value)}
                         />
@@ -304,7 +310,7 @@ export default function RecordUploadPage() {
                         disabled={isEmpty(answer)}
                         className='p-3 bg-blue-500 text-white rounded-md disabled:bg-gray-400'
                     >
-                        기록 저장
+                        {t('save_record')}
                     </button>
                 )
             }

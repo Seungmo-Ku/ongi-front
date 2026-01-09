@@ -7,9 +7,11 @@ import { useDirectionalRouter } from '@/hooks/use-directional-router'
 import { FirebaseError } from '@firebase/util'
 import { useSetAtom } from 'jotai'
 import { SpinnerViewAtom } from '@/components/spinner/spinner-view'
+import { useTranslation } from 'react-i18next'
 
 
 const LoginPage = () => {
+    const { t } = useTranslation('common')
     const { back, push } = useDirectionalRouter()
     const auth = getAuth(app)
     
@@ -32,7 +34,7 @@ const LoginPage = () => {
     // 로그인 처리 함수
     const handleLogin = async () => {
         if (!email || !password) {
-            setError('이메일과 비밀번호를 모두 입력해주세요.')
+            setError(t('error_enter_email_password'))
             return
         }
         setIsLoading(true)
@@ -41,23 +43,23 @@ const LoginPage = () => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             if (userCredential.user) push('/record')
             else {
-                setError('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.')
+                setError(t('error_login_failed'))
             }
         } catch (err) {
             // Firebase 에러 코드에 따라 사용자 친화적인 메시지 설정
             if (err instanceof FirebaseError) {
                 switch (err.code) {
                     case 'auth/user-not-found':
-                        setError('가입되지 않은 이메일입니다.')
+                        setError(t('error_user_not_found'))
                         break
                     case 'auth/wrong-password':
-                        setError('비밀번호가 틀렸습니다.')
+                        setError(t('error_wrong_password'))
                         break
                     case 'auth/invalid-credential':
-                        setError('이메일 또는 비밀번호가 잘못되었습니다.')
+                        setError(t('error_invalid_credential'))
                         break
                     default:
-                        setError('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.')
+                        setError(t('error_login_failed'))
                 }
             }
         } finally {
@@ -73,14 +75,14 @@ const LoginPage = () => {
                     type='email'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder='이메일 입력'
+                    placeholder={t('placeholder_email')}
                     className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black'
                 />
                 <input
                     type='password'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder='비밀번호 입력'
+                    placeholder={t('placeholder_password')}
                     className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black'
                 />
                 {error && <p className='text-red-500 text-sm text-center'>{error}</p>}
@@ -91,7 +93,7 @@ const LoginPage = () => {
                     disabled={isLoading}
                     className='w-full py-2 px-4 bg-[#353535] text-16-regular text-white rounded-[8px] disabled:bg-black transition duration-300 active:scale-105'
                 >
-                    로그인
+                    {t('login')}
                 </button>
                 <button
                     onClick={() => {
@@ -100,7 +102,7 @@ const LoginPage = () => {
                     disabled={isLoading}
                     className='w-full py-2 px-4 bg-white text-16-regular text-black rounded-[8px] border-[0.5px] border-black'
                 >
-                    회원가입
+                    {t('register')}
                 </button>
             </div>
         </div>

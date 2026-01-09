@@ -5,10 +5,11 @@ import { useState } from 'react'
 import clsx from 'clsx'
 import { QnAList } from '@/components/mypage/qnalist'
 import { MyBadge } from '@/components/mypage/mybadge'
+import { useTranslation } from 'react-i18next'
 
 
 const MyPage = () => {
-    
+    const { t } = useTranslation('common')
     const { data: allCount } = useGetAllRecordsCountQuery()
     const { data: monthlyCount } = useGetMonthlyRecordsCountQuery()
     
@@ -18,12 +19,12 @@ const MyPage = () => {
         <div className='w-full h-full flex flex-col items-center justify-start gap-y-8 overflow-y-scroll px-4'>
             <div className='w-full border border-[#D0D5DA] rounded-[10px] grid grid-cols-2 py-2'>
                 <div className='w-full border border-transparent border-r-[#D0D5DA] flex flex-col items-center justify-center gap-y-2 py-2'>
-                    <p className='text-black text-14-regular'>전체 기록</p>
-                    <p className='text-black text-16-bold'>{`${allCount ?? 0}개`}</p>
+                    <p className='text-black text-14-regular'>{t('total_records')}</p>
+                    <p className='text-black text-16-bold'>{t('records_count', { count: allCount ?? 0 })}</p>
                 </div>
                 <div className='w-full border border-transparent border-r-[#D0D5DA] flex flex-col items-center justify-center gap-y-2 py-2'>
-                    <p className='text-black text-14-regular'>이번 달 기록</p>
-                    <p className='text-black text-16-bold'>{`${monthlyCount ?? 0}개`}</p>
+                    <p className='text-black text-14-regular'>{t('this_month_records')}</p>
+                    <p className='text-black text-16-bold'>{t('records_count', { count: monthlyCount ?? 0 })}</p>
                 </div>
             </div>
             <div className='w-full grow flex flex-col items-center justify-start'>
@@ -33,13 +34,13 @@ const MyPage = () => {
                             className={clsx('transition duration-300 border-[1.5px] border-transparent', tap === 'badge' ? 'text-black border-b-black' : 'text-[#E6E6E6]')}
                             onClick={() => setTap('badge')}
                         >
-                            나의 배지
+                            {t('my_badges')}
                         </p>
                         <p
                             className={clsx('transition duration-300 border-[1.5px] border-transparent', tap === 'qna' ? 'text-black border-b-black' : 'text-[#E6E6E6]')}
                             onClick={() => setTap('qna')}
                         >
-                            백문백답
+                            {t('qna')}
                         </p>
                     </div>
                     <div className='w-full h-[1px] bg-[#D0D5DA] -translate-y-[0.5px] z-0'/>

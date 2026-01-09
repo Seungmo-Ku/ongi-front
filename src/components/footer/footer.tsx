@@ -6,9 +6,11 @@ import clsx from 'clsx'
 import { Button } from '@headlessui/react'
 import { Calendar, Compass, User } from 'lucide-react'
 import { useDirectionalRouter } from '@/hooks/use-directional-router'
+import { useTranslation } from 'react-i18next'
 
 
 export const Footer = () => {
+    const { t } = useTranslation('common')
     const { push } = useDirectionalRouter()
     const pathname = usePathname()
     
@@ -53,9 +55,9 @@ export const Footer = () => {
     
     return (
         <div className='w-full shrink-0 pt-4 pb-2 px-4 grid grid-cols-3 items-center justify-center text-white z-[1] bg-white'>
-            {footerButtonComponent('기록', 0, () => push('/record'))}
-            {footerButtonComponent('캘린더', 1, () => push('/calendar'))}
-            {footerButtonComponent('My', 2, () => push('/my'))}
+            {footerButtonComponent(t('footer_record'), 0, () => push('/record'))}
+            {footerButtonComponent(t('footer_calendar'), 1, () => push('/calendar'))}
+            {footerButtonComponent(t('footer_my'), 2, () => push('/my'))}
         </div>
     )
 }

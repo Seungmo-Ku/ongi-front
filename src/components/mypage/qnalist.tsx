@@ -4,10 +4,11 @@ import { useGet100QnAQuery } from '@/hooks/use-react-query'
 import { useInView } from 'react-intersection-observer'
 import { useEffect, useMemo } from 'react'
 import { Spinner } from '@/components/spinner'
+import { useTranslation } from 'react-i18next'
 
 
 export const QnAList = () => {
-    
+    const { t } = useTranslation('common')
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useGet100QnAQuery()
     const { ref, inView } = useInView()
     
@@ -43,7 +44,7 @@ export const QnAList = () => {
             }
             {isFetchingNextPage && (
                 <div className='flex flex-row items-center justify-center gap-x-2'>
-                    <p>로딩중...</p>
+                    <p>{t('loading')}</p>
                     <Spinner.Loading/>
                 </div>
             )}
