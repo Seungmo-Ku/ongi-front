@@ -76,8 +76,8 @@ export default function PhotoCalendarPage() {
                         push('/record')
                     }}
                 >
-                    <div className='absolute w-full h-full z-[1] bg-black/30'/>
-                    <img src={recordForDay.imageUrl} alt='imageUrl' className='w-full h-full opacity-60 object-cover'/>
+                    {/*<div className='absolute w-full h-full z-[1] bg-black/30'/>*/}
+                    <img src={recordForDay.imageUrl} alt='imageUrl' className='w-full h-full opacity-100 object-cover'/>
                     <p className='absolute text-white z-[2] text-16-bold bottom-2.5 left-2'>
                         {t('month_day_format', { month: month + 1, day })}
                     </p>
