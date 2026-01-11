@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 
 export const HeaderMain = () => {
-    const { t } = useTranslation('common')
+    const { t, i18n } = useTranslation('common')
     const pathname = usePathname()
     const { currentDate, setCurrentDate, calendarMode, setCalendarMode } = useCurrentDate()
     const { push, back } = useDirectionalRouter()
@@ -40,9 +40,13 @@ export const HeaderMain = () => {
         if (isRegisterPage) return <p>{t('register')}</p>
         if (isSettingsPage) return <p>{t('header_settings')}</p>
         if (currentDate) {
+            if (i18n.language === 'en') {
+                const monthName = currentDate.toLocaleString('en-US', { month: 'long' });
+                return <p>{`${monthName}, ${currentDate.getFullYear()}`}</p>
+            }
             return <p>{t('year_month_format', { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1 })}</p>
         } else return null
-    }, [currentDate, isMyPage, isRegisterPage, isSettingsPage, t])
+    }, [currentDate, i18n.language, isMyPage, isRegisterPage, isSettingsPage, t])
     
     const showChevron = useMemo(() => {
         return !isRegisterPage && !isMyPage && !isSettingsPage
@@ -63,11 +67,19 @@ export const HeaderMain = () => {
         )
     }, [back])
     
+    const logo = useMemo(() => {
+        if (i18n.language === 'ko') {
+            return <img src='/images/logo.png' alt='logo' className='w-[100px] aspect-[722/152]'/>
+        } else {
+            return <img src='/images/logo-english.png' alt='logo' className='w-[130px] h-[20px]'/>
+        }
+    }, [i18n.language])
+    
     if (pathname.startsWith('/login') && !pathname.endsWith('/register')) return null
     
     return (
         <div className='w-full h-[88px] p-4 shrink-0 flex flex-col justify-start gap-y-4'>
-            <img src='/images/logo.png' alt='logo' className='w-[100px] aspect-[722/152]'/>
+            {logo}
             <div className='w-full flex justify-between text-16-bold text-[#121212]'>
                 <div className='flex flex-row gap-x-2'>
                     {isSettingsPage ? backChevron : null}
