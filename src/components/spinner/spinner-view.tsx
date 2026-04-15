@@ -31,7 +31,7 @@ export const SpinnerView = () => {
     if (!show) return null
     return (
         <div className='absolute w-full h-full z-10 flex flex-col items-center justify-center bg-white/70 gap-y-5'>
-            <Spinner.Loading className='!w-10 !h-10'/>
+            <Spinner.Loading className='!w-15 !h-15'/>
             <div className='flex flex-row text-16-regular text-black'>
                 <p>{t('loading')}</p>
                 <Image />
